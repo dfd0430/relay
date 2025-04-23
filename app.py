@@ -1,58 +1,70 @@
 import os
 import json
-from flask import Flask, request, render_template
-from SPARQLWrapper import SPARQLWrapper, JSON
-
+from flask import Flask, request, render_template, redirect, url_for
 from docker_functions import *
 
 app = Flask(__name__)
-
-SPARQL_ENDPOINT = os.getenv("SPARQL_ENDPOINT", "http://localhost:8080/sparql")
+DATA_FILE = "combined_containers.json"
 Network = os.getenv("Network", "database-net")
 
 
-@app.route("/", methods=["GET", "POST"])
-def query_form():
-    results = None
-    error = None
-    combined_containers = None
+def load_combinations():
+    if os.path.exists(DATA_FILE):
+        with open(DATA_FILE, "r") as f:
+            return json.load(f)
+    return []
 
-    # Get containers on the network and Docker in Docker containers
+
+def save_combinations(combos):
+    with open(DATA_FILE, "w") as f:
+        json.dump(combos, f, indent=2)
+
+
+@app.route("/", methods=["GET", "POST"])
+def index():
     network_containers = list_containers_on_network(Network)
     dind_containers = list_dind_containers()
+    combinations = load_combinations()
 
     if request.method == "POST":
-        # Handle container combination
-        selected_network_container = request.form.get("network_container")
-        selected_dind_container = request.form.get("dind_container")
+        selected_network = request.form.get("network_container")
+        selected_dind = request.form.get("dind_container")
 
-        if selected_network_container and selected_dind_container:
-            combined_containers = {
-                "network_container": selected_network_container,
-                "dind_container": selected_dind_container
+        if selected_network and selected_dind:
+            new_combo = {
+                "network_container": selected_network,
+                "dind_container": selected_dind
             }
 
-        # Handle the SPARQL query if present
-        sparql_query = request.form.get("query")
-        if sparql_query:
-            sparql = SPARQLWrapper(SPARQL_ENDPOINT)
-            sparql.setQuery(sparql_query)
-            sparql.setReturnFormat(JSON)
-            try:
-                query_result = sparql.queryAndConvert()
-                results = json.dumps(query_result, indent=2)
-            except Exception as e:
-                error = str(e)
+            if new_combo not in combinations:
+                combinations.append(new_combo)
+                save_combinations(combinations)
 
-    # Pass all the data to the template
+        return redirect(url_for("index"))
+
     return render_template(
         "query_form.html",
-        results=results,
-        error=error,
         network_containers=network_containers,
         dind_containers=dind_containers,
-        combined_containers=combined_containers
+        combined_containers=combinations
     )
+
+
+@app.route("/remove", methods=["POST"])
+def remove_combination():
+    to_remove = request.form.get("to_remove")
+    combinations = load_combinations()
+
+    if to_remove:
+        # We expect format: "network_name|dind_name"
+        net_name, dind_name = to_remove.split("|")
+        combinations = [
+            c for c in combinations
+            if not (c["network_container"] == net_name and c["dind_container"] == dind_name)
+        ]
+        save_combinations(combinations)
+
+    return redirect(url_for("index"))
 
 
 if __name__ == "__main__":

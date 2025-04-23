@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>SPARQL Query Tool</title>
+    <title>Combine Containers</title>
 </head>
 <body>
-    <h1>Run a SPARQL Query</h1>
+    <h1>Combine Containers</h1>
 
     <form method="post">
         <h2>Select a Network Container</h2>
-        <select name="network_container">
+        <select name="network_container" required>
             <option value="">--Select a Network Container--</option>
             {% for container in network_containers %}
                 <option value="{{ container.name }}">{{ container.name }} (IP: {{ container.ipv4_address }})</option>
@@ -16,7 +16,7 @@
         </select>
 
         <h2>Select a Docker-in-Docker (DIND) Container</h2>
-        <select name="dind_container">
+        <select name="dind_container" required>
             <option value="">--Select a DIND Container--</option>
             {% for container in dind_containers %}
                 <option value="{{ container.name }}">{{ container.name }}</option>
@@ -24,29 +24,22 @@
         </select>
 
         <br><br>
-        <button type="submit" name="combine_button">Combine Containers</button>
+        <button type="submit">Combine Containers</button>
     </form>
 
     {% if combined_containers %}
-        <h2>Combined Containers:</h2>
-        <pre>
-            Network Container: {{ combined_containers.network_container }}
-            Docker-in-Docker Container: {{ combined_containers.dind_container }}
-        </pre>
-    {% endif %}
-
-    <h2>Enter SPARQL Query (Optional)</h2>
-    <form method="post">
-        <textarea name="query" rows="10" cols="80" placeholder="Enter your SPARQL query here"></textarea><br>
-        <button type="submit">Submit SPARQL Query</button>
-    </form>
-
-    {% if results %}
-        <h2>SPARQL Query Results:</h2>
-        <pre>{{ results }}</pre>
-    {% elif error %}
-        <h2 style="color: red;">Error:</h2>
-        <pre>{{ error }}</pre>
+        <h2>Saved Combined Containers:</h2>
+        <ul>
+            {% for combo in combined_containers %}
+                <li>
+                    <strong>{{ combo.network_container }}</strong> + <strong>{{ combo.dind_container }}</strong>
+                    <form method="post" action="/remove" style="display:inline;">
+                        <input type="hidden" name="to_remove" value="{{ combo.network_container }}|{{ combo.dind_container }}">
+                        <button type="submit">Remove</button>
+                    </form>
+                </li>
+            {% endfor %}
+        </ul>
     {% endif %}
 </body>
 </html>
