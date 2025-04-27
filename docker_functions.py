@@ -1,6 +1,7 @@
 import docker
 from docker.tls import TLSConfig
 from datetime import datetime
+import json
 
 IP_LOG_FILE = "ip_log.txt"
 
@@ -108,3 +109,15 @@ def list_dind_containers():
         with open(IP_LOG_FILE, "a") as log_file:
             log_file.write(f"{datetime.now()} - {error_message}\n")
         return {"error": error_message}
+
+
+def find_network_container(dind_name, filename='combined_containers.json'):
+    with open(filename, 'r') as file:
+        data = json.load(file)
+
+    for item in data:
+        if item['dind_container'] == dind_name:
+            return item['network_container']
+
+    return None
+
