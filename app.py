@@ -4,11 +4,11 @@ from SPARQLWrapper import SPARQLWrapper, JSON
 from flask import Flask, request, render_template, redirect, url_for,jsonify
 from docker_functions import *
 
-LOG_FILE = "query_logs.jsonl"
+
 app = Flask(__name__)
 DATA_FILE = "combined_containers.json"
 Network = os.getenv("Network", "database-net")
-
+LOG_FILE = "query_logs.jsonl"
 
 def load_combinations():
     if os.path.exists(DATA_FILE):
@@ -60,6 +60,19 @@ def index():
         combined_containers=combinations
     )
 
+@app.route("/logs/<container_name>")
+def view_logs(container_name):
+    logs = []
+    if os.path.exists(LOG_FILE):
+        with open(LOG_FILE, "r") as f:
+            for line in f:
+                entry = json.loads(line)
+                if entry["container_name"] == container_name:
+                    logs.append(entry)
+    else:
+        logs = []
+
+    return render_template("logs.html", container_name=container_name, logs=logs)
 
 @app.route("/remove", methods=["POST"])
 def remove_combination():
@@ -76,6 +89,12 @@ def remove_combination():
         save_combinations(combinations)
 
     return redirect(url_for("index"))
+
+# @app.route("/init," methods=["POST"])
+# def initialize():
+
+
+
 
 @app.route("/query", methods=["POST", "GET"])
 def handle_query():

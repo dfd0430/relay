@@ -33,9 +33,16 @@
             {% for combo in combined_containers %}
                 <li>
                     <strong>{{ combo.network_container }}</strong> + <strong>{{ combo.dind_container }}</strong>
+
+                    <!-- Remove Button -->
                     <form method="post" action="/remove" style="display:inline;">
                         <input type="hidden" name="to_remove" value="{{ combo.network_container }}|{{ combo.dind_container }}">
                         <button type="submit">Remove</button>
+                    </form>
+
+                    <!-- View Logs Button -->
+                    <form method="get" action="{{ url_for('view_logs', container_name=combo.dind_container) }}" style="display:inline;">
+                        <button type="submit">View Logs</button>
                     </form>
                 </li>
             {% endfor %}
