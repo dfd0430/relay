@@ -90,8 +90,15 @@ def remove_combination():
 
     return redirect(url_for("index"))
 
-# @app.route("/init," methods=["POST"])
-# def initialize():
+@app.route("/init", methods=["POST"])
+def initialize():
+    try:
+        setup_nginx()
+
+        return redirect(url_for('index', setup_result="Setup complete!"))
+    except Exception as e:
+
+        return redirect(url_for('index', setup_result=f"Setup failed: {str(e)}"))
 
 
 

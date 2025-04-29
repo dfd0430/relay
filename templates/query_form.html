@@ -6,6 +6,16 @@
 <body>
     <h1>Combine Containers</h1>
 
+    <!-- Setup Button Form -->
+    <form method="post" action="/init">
+        <button type="submit">Setup</button>
+    </form>
+
+    <!-- Show setup result if available -->
+    {% if setup_result %}
+        <p>{{ setup_result }}</p>
+    {% endif %}
+
     <form method="post">
         <h2>Select a Network Container</h2>
         <select name="network_container" required>
