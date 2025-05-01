@@ -3,12 +3,18 @@ import json
 from SPARQLWrapper import SPARQLWrapper, JSON
 from flask import Flask, request, render_template, redirect, url_for,jsonify
 from docker_functions import *
+from werkzeug.utils import secure_filename
 
+from ontop import deploy_ontop_container
 
 app = Flask(__name__)
 DATA_FILE = "combined_containers.json"
 Network = os.getenv("Network", "database-net")
 LOG_FILE = "query_logs.jsonl"
+
+UPLOAD_FOLDER = "/tmp/uploads"
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 def load_combinations():
     if os.path.exists(DATA_FILE):
@@ -139,6 +145,29 @@ def handle_query():
             jsonify({"error": "An unexpected error occurred", "details": str(e)}),
             500,
         )
+@app.route("/deploy_ontop", methods=["POST"])
+def deploy_ontop():
+    try:
+        obda = request.files.get("obda_file")
+        owl = request.files.get("owl_file")
+        properties = request.files.get("properties_file")
 
+        if not obda or not owl or not properties:
+            return jsonify({"error": "All three files are required"}), 400
+
+        obda_path = os.path.join("/volume/ontop_input", "mappings.obda")
+        owl_path = os.path.join("/volume/ontop_input", "ontologie.owl")
+        prop_path = os.path.join("/volume/ontop_input", "database.properties")
+
+        obda.save(obda_path)
+        owl.save(owl_path)
+        properties.save(prop_path)
+
+        deploy_ontop_container(obda_path, owl_path, prop_path)
+
+        return redirect(url_for("index"))
+
+    except Exception as e:
+        return jsonify({"error": "Deployment failed", "details": str(e)}), 500
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080)

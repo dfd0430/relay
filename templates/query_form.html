@@ -58,5 +58,19 @@
             {% endfor %}
         </ul>
     {% endif %}
+
+<h2>Deploy Ontop Container</h2>
+<form method="post" action="/deploy_ontop" enctype="multipart/form-data">
+    <label for="obda_file">OBDA File:</label>
+    <input type="file" name="obda_file" required><br><br>
+
+    <label for="owl_file">OWL File:</label>
+    <input type="file" name="owl_file" required><br><br>
+
+    <label for="properties_file">Properties File:</label>
+    <input type="file" name="properties_file" required><br><br>
+
+    <button type="submit">Deploy Ontop</button>
+</form>
 </body>
 </html>

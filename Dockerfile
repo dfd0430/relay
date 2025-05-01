@@ -18,6 +18,7 @@ COPY . .
 # Copy templates folder explicitly if not caught by .
 COPY templates ./templates
 
+
 # Expose the Flask port
 EXPOSE 8080
 
