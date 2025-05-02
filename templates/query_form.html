@@ -16,7 +16,10 @@
         <p>{{ setup_result }}</p>
     {% endif %}
 
+    <!-- Combine Containers Form -->
     <form method="post">
+        <input type="hidden" name="action" value="combine">
+
         <h2>Select a Network Container</h2>
         <select name="network_container" required>
             <option value="">--Select a Network Container--</option>
@@ -59,18 +62,28 @@
         </ul>
     {% endif %}
 
-<h2>Deploy Ontop Container</h2>
-<form method="post" action="/deploy_ontop" enctype="multipart/form-data">
-    <label for="obda_file">OBDA File:</label>
-    <input type="file" name="obda_file" required><br><br>
+    <h2>Deploy Ontop Container</h2>
+    <form method="post" enctype="multipart/form-data">
+        <input type="hidden" name="action" value="deploy_ontop">
 
-    <label for="owl_file">OWL File:</label>
-    <input type="file" name="owl_file" required><br><br>
+        <label for="obda_file">OBDA File:</label>
+        <input type="file" name="obda_file" required><br><br>
 
-    <label for="properties_file">Properties File:</label>
-    <input type="file" name="properties_file" required><br><br>
+        <label for="owl_file">OWL File:</label>
+        <input type="file" name="owl_file" required><br><br>
 
-    <button type="submit">Deploy Ontop</button>
-</form>
+        <label for="properties_file">Properties File:</label>
+        <input type="file" name="properties_file" required><br><br>
+
+        <label for="dind_container">Select DIND Container:</label>
+        <select name="dind_container" required>
+            <option value="">--Select a DIND Container--</option>
+            {% for container in dind_containers %}
+                <option value="{{ container.name }}">{{ container.name }}</option>
+            {% endfor %}
+        </select><br><br>
+
+        <button type="submit">Deploy Ontop</button>
+    </form>
 </body>
 </html>

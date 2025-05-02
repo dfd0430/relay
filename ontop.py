@@ -1,4 +1,6 @@
 import os
+import uuid
+
 import docker
 import textwrap
 import shutil
@@ -103,13 +105,13 @@ def deploy_ontop_container(obda_content,owl_content,properties_content):
     # Prepare files
     write_input_files_to_host(obda_content,owl_content,properties_content)
 
+    random_name = f"ontop{uuid.uuid4().hex[:8]}"
     # Start Ontop container
     container = client.containers.run(
         image="ontop/ontop",
-        name="ontoptest",
         detach=True,
+        name =random_name,
         network="database-net",
-        ports={"8080/tcp": 8089},
         volumes={
             HOST_INPUT_PATH: {"bind": "/opt/ontop/input", "mode": "rw"},
             HOST_JDBC_PATH: {"bind": "/opt/ontop/jdbc", "mode": "rw"},
@@ -123,7 +125,6 @@ def deploy_ontop_container(obda_content,owl_content,properties_content):
     )
 
     print(f"Ontop container started with ID {container.short_id}")
-
-
+    return container.name
 
 

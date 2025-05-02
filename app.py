@@ -38,18 +38,50 @@ def log_query(ip, container_name, query):
         f.write(json.dumps(log_entry) + "\n")
 
 @app.route("/", methods=["GET", "POST"])
+@app.route("/", methods=["GET", "POST"])
 def index():
     network_containers = list_containers_on_network(Network)
     dind_containers = list_dind_containers()
     combinations = load_combinations()
 
     if request.method == "POST":
-        selected_network = request.form.get("network_container")
-        selected_dind = request.form.get("dind_container")
+        action = request.form.get("action")
 
-        if selected_network and selected_dind:
+        if action == "combine":
+            selected_network = request.form.get("network_container")
+            selected_dind = request.form.get("dind_container")
+
+            if selected_network and selected_dind:
+                new_combo = {
+                    "network_container": selected_network,
+                    "dind_container": selected_dind
+                }
+
+                if new_combo not in combinations:
+                    combinations.append(new_combo)
+                    save_combinations(combinations)
+
+        elif action == "deploy_ontop":
+            obda = request.files.get("obda_file")
+            owl = request.files.get("owl_file")
+            properties = request.files.get("properties_file")
+            selected_dind = request.form.get("dind_container")
+
+            if not obda or not owl or not properties or not selected_dind:
+                return jsonify({"error": "All fields including DIND selection are required"}), 400
+
+            obda_path = os.path.join("/volume/ontop_input", "mappings.obda")
+            owl_path = os.path.join("/volume/ontop_input", "ontologie.owl")
+            prop_path = os.path.join("/volume/ontop_input", "database.properties")
+
+            obda.save(obda_path)
+            owl.save(owl_path)
+            properties.save(prop_path)
+
+            ontop_name = deploy_ontop_container(obda_path, owl_path, prop_path)
+
             new_combo = {
-                "network_container": selected_network,
+                "network_container": ontop_name,
                 "dind_container": selected_dind
             }
 
@@ -65,6 +97,7 @@ def index():
         dind_containers=dind_containers,
         combined_containers=combinations
     )
+
 
 @app.route("/logs/<container_name>")
 def view_logs(container_name):
@@ -145,27 +178,36 @@ def handle_query():
             jsonify({"error": "An unexpected error occurred", "details": str(e)}),
             500,
         )
-@app.route("/deploy_ontop", methods=["POST"])
-def deploy_ontop():
-    try:
-        obda = request.files.get("obda_file")
-        owl = request.files.get("owl_file")
-        properties = request.files.get("properties_file")
-
-        if not obda or not owl or not properties:
-            return jsonify({"error": "All three files are required"}), 400
-
-        obda_path = os.path.join("/volume/ontop_input", "mappings.obda")
-        owl_path = os.path.join("/volume/ontop_input", "ontologie.owl")
-        prop_path = os.path.join("/volume/ontop_input", "database.properties")
-
-        obda.save(obda_path)
-        owl.save(owl_path)
-        properties.save(prop_path)
-
-        deploy_ontop_container(obda_path, owl_path, prop_path)
-
-        return redirect(url_for("index"))
+# @app.route("/deploy_ontop", methods=["POST"])
+# def deploy_ontop():
+#     try:
+#         obda = request.files.get("obda_file")
+#         owl = request.files.get("owl_file")
+#         properties = request.files.get("properties_file")
+#         selected_dind = request.form.get("dind_container")
+#
+#         if not obda or not owl or not properties or not selected_dind:
+#             return jsonify({"error": "All three files are required"}), 400
+#
+#         obda_path = os.path.join("/volume/ontop_input", "mappings.obda")
+#         owl_path = os.path.join("/volume/ontop_input", "ontologie.owl")
+#         prop_path = os.path.join("/volume/ontop_input", "database.properties")
+#
+#         obda.save(obda_path)
+#         owl.save(owl_path)
+#         properties.save(prop_path)
+#
+#         ontop_name = deploy_ontop_container(obda_path, owl_path, prop_path)
+#         new_combo = {
+#             "network_container": ontop_name,
+#             "dind_container": selected_dind
+#         }
+#         combinations = load_combinations()
+#         if new_combo not in combinations:
+#             combinations.append(new_combo)
+#             save_combinations(combinations)
+#
+#         return redirect(url_for("index"))
 
     except Exception as e:
         return jsonify({"error": "Deployment failed", "details": str(e)}), 500
