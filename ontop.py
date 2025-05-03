@@ -1,9 +1,12 @@
 import os
 import uuid
-
+from sqlalchemy import create_engine, Column, Integer, String, LargeBinary, Table, MetaData
 import docker
 import textwrap
 import shutil
+
+from SQLiteDB import SQLiteDB
+
 # Host paths (bind-mounted Docker volume)
 HOST_INPUT_PATH = "/var/lib/docker/volumes/volume_python/_data/ontop_input"
 HOST_JDBC_PATH = "/var/lib/docker/volumes/volume_python/_data/ontop_jdbc"
@@ -59,7 +62,5 @@ def deploy_ontop_container(obda_content,owl_content,properties_content):
 
     print(f"Ontop container started with ID {container.short_id}")
     return container.name
-
-
 
 

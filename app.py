@@ -15,9 +15,10 @@ LOG_FILE = "query_logs.jsonl"
 UPLOAD_FOLDER = "/tmp/uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+os.makedirs("/volume/backup", exist_ok=True)
+db = SQLiteDB("sqlite:////volume/backup/my_database.db")
 
-
-
+db.create_blueprint_table()
 
 def load_combinations():
     if os.path.exists(DATA_FILE):
@@ -66,6 +67,12 @@ def index():
         jdbc.save(jdbc_path)
 
         ontop_name = deploy_ontop_container(obda_path, owl_path, prop_path)  # Assuming it does not yet use jdbc_path
+
+        obda_data = obda.read() if obda else None
+        owl_data = owl.read() if owl else None
+        properties_data = properties.read() if properties else None
+        jdbc_data = jdbc.read() if jdbc else None
+        db.insert_blueprint("testtest", obda_data, owl_data, properties_data, jdbc_data)
 
         new_combo = {
             "network_container": ontop_name,
