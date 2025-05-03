@@ -1,25 +1,34 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Logs for {{ container_name }}</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Container Logs - {{ container_name }}</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
 </head>
 <body>
-    <h1>Logs for {{ container_name }}</h1>
+    <div class="container mt-5">
+        <h1>Logs for {{ container_name }}</h1>
+        <a href="{{ url_for('index') }}" class="btn btn-secondary">Back to Dashboard</a>
 
-    {% if logs %}
-        <ul>
-            {% for log in logs %}
-                <li>
-                    <strong>Timestamp:</strong> {{ log.timestamp }}<br>
-                    <strong>IP:</strong> {{ log.ip }}<br>
-                    <strong>Query:</strong> {{ log.query }}<br><br>
-                </li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p>No logs found for this container.</p>
-    {% endif %}
+        <h3 class="mt-4">Query Logs</h3>
+        {% if logs %}
+            <ul class="list-group">
+                {% for log in logs %}
+                    <li class="list-group-item">
+                        <strong>{{ log.timestamp }}</strong>
+                        <p>IP: {{ log.ip }}</p>
+                        <p>Query: {{ log.query }}</p>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No logs available for this container.</p>
+        {% endif %}
+    </div>
 
-    <a href="{{ url_for('index') }}">Back to Home</a>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 </body>
 </html>

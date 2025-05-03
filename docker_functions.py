@@ -72,7 +72,6 @@ def list_containers_on_network(network_name):
         return []
 
 def list_dind_containers():
-
     tls_config = TLSConfig(client_cert=(CLIENT_CERT, CLIENT_KEY), verify=False)
 
     try:
@@ -101,9 +100,11 @@ def list_dind_containers():
                     f"{datetime.now()} - Container: {container.name}, Networks: {container_info['networks']}\n"
                 )
 
-        return container_list
-        # names = [container['name'] for container in containers]
-        # print(names)
+        # Extract the names correctly from the container objects
+        names = [container.name for container in containers]  # Corrected to use .name
+        return names
+        # return container_list
+        # names = [container['name'] for container in containers]  # print(names)
 
     except Exception as e:
         error_message = f"Error listing containers: {str(e)}"
@@ -207,5 +208,17 @@ COPY nginx.conf /etc/nginx/nginx.conf
         print(f"Failed to start nginx container: {str(e)}")
         raise e
 
+
+def stop_docker_container(container_name):
+    client = docker.DockerClient(base_url='unix://var/run/docker.sock')
+
+    try:
+        container = client.containers.get(container_name)
+        container.stop()
+        print(f"Successfully stopped container: {container_name}")
+    except docker.errors.NotFound:
+        print(f"Container '{container_name}' not found.")
+    except Exception as e:
+        print(f"Error stopping container '{container_name}': {e}")
 
 

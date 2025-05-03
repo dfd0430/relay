@@ -1,89 +1,75 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Combine Containers</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Container Management</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
 </head>
 <body>
-    <h1>Combine Containers</h1>
+    <div class="container mt-5">
+        <h1>Deploy Container</h1>
+        <form method="POST" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="obda_file">OBDA File</label>
+                <input type="file" class="form-control" id="obda_file" name="obda_file" required>
+            </div>
+            <div class="form-group">
+                <label for="owl_file">OWL File</label>
+                <input type="file" class="form-control" id="owl_file" name="owl_file" required>
+            </div>
+            <div class="form-group">
+                <label for="properties_file">Properties File</label>
+                <input type="file" class="form-control" id="properties_file" name="properties_file" required>
+            </div>
+            <div class="form-group">
+                <label for="jdbc_file">JDBC Driver File</label>
+                <input type="file" class="form-control" id="jdbc_file" name="jdbc_file" required>
+            </div>
+            <div class="form-group">
+                <label for="dind_container">Select DIND Container</label>
+                <select class="form-control" id="dind_container" name="dind_container" required>
+                    {% for container in dind_containers %}
+                        <option value="{{ container }}">{{ container }}</option>
+                    {% endfor %}
+                </select>
+            </div>
 
-    <!-- Setup Button Form -->
-    <form method="post" action="/init">
-        <button type="submit">Setup</button>
-    </form>
+            <button type="submit" class="btn btn-primary">Deploy</button>
+        </form>
 
-    <!-- Show setup result if available -->
-    {% if setup_result %}
-        <p>{{ setup_result }}</p>
-    {% endif %}
+        <h2 class="mt-5">Deployed Containers</h2>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Network Container</th>
+                    <th>DIND Container</th>
+                    <th>Actions</th>
+                    <th>Logs</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for combo in combined_containers %}
+                    <tr>
+                        <td>{{ combo.network_container }}</td>
+                        <td>{{ combo.dind_container }}</td>
+                        <td>
+                            <form action="{{ url_for('remove_combination') }}" method="POST" style="display:inline;">
+                                <input type="hidden" name="to_remove" value="{{ combo.network_container }}|{{ combo.dind_container }}">
+                                <button type="submit" class="btn btn-danger btn-sm">Remove</button>
+                            </form>
+                        </td>
+                        <td>
+                            <a href="{{ url_for('view_logs', container_name=combo.dind_container) }}" class="btn btn-info btn-sm">View Logs</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
-    <!-- Combine Containers Form -->
-    <form method="post">
-        <input type="hidden" name="action" value="combine">
-
-        <h2>Select a Network Container</h2>
-        <select name="network_container" required>
-            <option value="">--Select a Network Container--</option>
-            {% for container in network_containers %}
-                <option value="{{ container.name }}">{{ container.name }} (IP: {{ container.ipv4_address }})</option>
-            {% endfor %}
-        </select>
-
-        <h2>Select a Docker-in-Docker (DIND) Container</h2>
-        <select name="dind_container" required>
-            <option value="">--Select a DIND Container--</option>
-            {% for container in dind_containers %}
-                <option value="{{ container.name }}">{{ container.name }}</option>
-            {% endfor %}
-        </select>
-
-        <br><br>
-        <button type="submit">Combine Containers</button>
-    </form>
-
-    {% if combined_containers %}
-        <h2>Saved Combined Containers:</h2>
-        <ul>
-            {% for combo in combined_containers %}
-                <li>
-                    <strong>{{ combo.network_container }}</strong> + <strong>{{ combo.dind_container }}</strong>
-
-                    <!-- Remove Button -->
-                    <form method="post" action="/remove" style="display:inline;">
-                        <input type="hidden" name="to_remove" value="{{ combo.network_container }}|{{ combo.dind_container }}">
-                        <button type="submit">Remove</button>
-                    </form>
-
-                    <!-- View Logs Button -->
-                    <form method="get" action="{{ url_for('view_logs', container_name=combo.dind_container) }}" style="display:inline;">
-                        <button type="submit">View Logs</button>
-                    </form>
-                </li>
-            {% endfor %}
-        </ul>
-    {% endif %}
-
-    <h2>Deploy Ontop Container</h2>
-    <form method="post" enctype="multipart/form-data">
-        <input type="hidden" name="action" value="deploy_ontop">
-
-        <label for="obda_file">OBDA File:</label>
-        <input type="file" name="obda_file" required><br><br>
-
-        <label for="owl_file">OWL File:</label>
-        <input type="file" name="owl_file" required><br><br>
-
-        <label for="properties_file">Properties File:</label>
-        <input type="file" name="properties_file" required><br><br>
-
-        <label for="dind_container">Select DIND Container:</label>
-        <select name="dind_container" required>
-            <option value="">--Select a DIND Container--</option>
-            {% for container in dind_containers %}
-                <option value="{{ container.name }}">{{ container.name }}</option>
-            {% endfor %}
-        </select><br><br>
-
-        <button type="submit">Deploy Ontop</button>
-    </form>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 </body>
 </html>
