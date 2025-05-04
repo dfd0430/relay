@@ -8,14 +8,16 @@
 <body>
 <div class="container mt-5">
     <h1>Stored Blueprints</h1>
+
     {% if blueprints %}
         <table class="table table-bordered mt-4">
-            <thead>
+            <thead class="thead-light">
                 <tr>
                     <th>ID</th>
                     <th>Name</th>
                     <th>Timestamp</th>
                     <th>Files</th>
+                    <th>Deploy</th>
                 </tr>
             </thead>
             <tbody>
@@ -29,6 +31,17 @@
                             <a href="{{ url_for('view_blueprint_file', bp_id=bp.id, file_type='owl') }}">OWL</a> |
                             <a href="{{ url_for('view_blueprint_file', bp_id=bp.id, file_type='properties') }}">Properties</a>
                         </td>
+                        <td>
+                            <form method="POST" action="{{ url_for('deploy_blueprint') }}" class="form-inline">
+                                <input type="hidden" name="bp_id" value="{{ bp.id }}">
+                                <select name="dind_container" class="form-control form-control-sm mr-2">
+                                    {% for d in dind_containers %}
+                                        <option value="{{ d }}">{{ d }}</option>
+                                    {% endfor %}
+                                </select>
+                                <button type="submit" class="btn btn-sm btn-success">Deploy</button>
+                            </form>
+                        </td>
                     </tr>
                 {% endfor %}
             </tbody>
@@ -36,6 +49,7 @@
     {% else %}
         <p>No blueprints found.</p>
     {% endif %}
+
     <a href="{{ url_for('index') }}" class="btn btn-secondary mt-3">Back to Main</a>
 </div>
 </body>

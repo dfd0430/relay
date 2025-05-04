@@ -17,7 +17,7 @@ UPLOAD_FOLDER = "/tmp/uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 os.makedirs("/volume/backup", exist_ok=True)
-db = SQLiteDB("sqlite:////volume/backup/my_database.db")
+db = SQLiteDB("sqlite:////volume/backup/relay.db")
 
 db.create_blueprint_table()
 
@@ -174,10 +174,16 @@ def initialize():
 @app.route("/blueprints")
 def list_blueprints():
     try:
-        blueprints = db.return_blueprints()
-        return render_template("blueprint_list.html", blueprints=blueprints)
+        blueprints     = db.return_blueprints()
+        dind_containers = list_dind_containers()
+        return render_template(
+            "blueprint_list.html",
+            blueprints=blueprints,
+            dind_containers=dind_containers
+        )
     except Exception as e:
         return f"Error retrieving blueprints: {e}", 500
+
 
 @app.route("/blueprint/<int:bp_id>/<string:file_type>")
 def view_blueprint_file(bp_id, file_type):
@@ -200,6 +206,47 @@ def view_blueprint_file(bp_id, file_type):
 
     except Exception as e:
         return f"Error displaying file: {e}", 500
+
+@app.route("/deploy_blueprint", methods=["POST"])
+def deploy_blueprint():
+    bp_id = request.form.get("bp_id", type=int)
+    dind = request.form.get("dind_container")
+
+    if not bp_id or not dind:
+        return "Blueprint ID and DIND container required", 400
+
+    bp = db.get_blueprint_by_id(bp_id)
+    if not bp:
+        return "Blueprint not found", 404
+
+    # Ensure required files exist
+    for key in ("obda_file", "owl_file", "properties_file"):
+        if key not in bp or bp[key] is None:
+            return f"Missing {key} in blueprint #{bp_id}", 500
+
+    # Write files
+    with open("/volume/ontop_input/mappings.obda", "wb") as f:
+        f.write(bp["obda_file"])
+    with open("/volume/ontop_input/ontologie.owl", "wb") as f:
+        f.write(bp["owl_file"])
+    with open("/volume/ontop_input/database.properties", "wb") as f:
+        f.write(bp["properties_file"])
+
+    # Deploy container
+    ontop_name = deploy_ontop_container(
+        "/volume/ontop_input/mappings.obda",
+        "/volume/ontop_input/ontologie.owl",
+        "/volume/ontop_input/database.properties"
+    )
+
+    # Save combo
+    combos = load_combinations()
+    new_combo = {"network_container": ontop_name, "dind_container": dind}
+    if new_combo not in combos:
+        combos.append(new_combo)
+        save_combinations(combos)
+
+    return redirect(url_for("list_blueprints"))
 
 
 @app.route("/query", methods=["POST", "GET"])
