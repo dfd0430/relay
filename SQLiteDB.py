@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Column, Integer, String, LargeBinary, Table, MetaData
+from sqlalchemy import create_engine, Column, Integer, String, LargeBinary, Table, MetaData, DateTime
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import insert
 
@@ -46,13 +46,14 @@ class SQLiteDB:
             ("name", String),           # name column for the blueprint's name
             ("obda_file", LargeBinary), # obda_file as a binary field
             ("owl_file", LargeBinary),  # owl_file as a binary field
-            ("mapping_file", LargeBinary), # mapping_file as a binary field
+            ("properties_file", LargeBinary), # mapping_file as a binary field
             ("jdbc_file", LargeBinary), # jdbc_file as a binary field
+            ("timestamp", DateTime),
         ]
         # Create the blueprint table using the existing SQLiteDB object
         self.create_table("blueprints", columns)
 
-    def insert_blueprint(self, name, obda_file, owl_file, mapping_file, jdbc_file):
+    def insert_blueprint(self, name, obda_file, owl_file, properties_file, jdbc_file, timestamp):
         """
         Insert a blueprint into the blueprints table.
         """
@@ -60,8 +61,9 @@ class SQLiteDB:
             "name": name,
             "obda_file": obda_file,
             "owl_file": owl_file,
-            "mapping_file": mapping_file,
-            "jdbc_file": jdbc_file
+            "properties_file": properties_file,
+            "jdbc_file": jdbc_file,
+            "timestamp": timestamp
         }
 
         # Insert the blueprint data into the table
@@ -69,7 +71,20 @@ class SQLiteDB:
 
         self.insert(table, [blueprint_data])
 
+    def return_blueprints(self):
+        table = self.metadata.tables.get("blueprints")
+        return self.select_all(table)
 
+    def get_blueprint_by_id(self, blueprint_id):
+        """
+        Retrieve a single blueprint by its ID.
+        """
+        from sqlalchemy import select
+        table = self.metadata.tables.get("blueprints")
+        stmt = select(table).where(table.c.id == blueprint_id)
+        with self.engine.connect() as conn:
+            result = conn.execute(stmt).fetchone()
+            return dict(result._mapping) if result else None
 
 
 

@@ -6,7 +6,8 @@ from docker_functions import *
 from werkzeug.utils import secure_filename
 from SQLiteDB import *
 from ontop import deploy_ontop_container
-
+from datetime import datetime
+import pytz
 app = Flask(__name__)
 DATA_FILE = "combined_containers.json"
 Network = os.getenv("Network", "database-net")
@@ -32,14 +33,20 @@ def save_combinations(combos):
         json.dump(combos, f, indent=2)
 
 def log_query(ip, container_name, query):
+    utc_now = datetime.utcnow()
+    germany_tz = pytz.timezone('Europe/Berlin')
+    germany_time = pytz.utc.localize(utc_now).astimezone(germany_tz)
+
     log_entry = {
-        "timestamp": datetime.utcnow().isoformat() + "Z",
+        "timestamp": germany_time.strftime("%Y-%m-%d %H:%M:%S"),  # Convert datetime to string
         "ip": ip,
         "container_name": container_name,
         "query": query,
     }
+
     with open(LOG_FILE, "a") as f:
         f.write(json.dumps(log_entry) + "\n")
+
 
 @app.route("/", methods=["GET", "POST"])
 def index():
@@ -63,26 +70,28 @@ def index():
         properties_data = properties.read()
         jdbc_data = jdbc.read()
 
-        db.insert_blueprint("testtest", obda_data, owl_data, properties_data, jdbc_data)
 
         if action == "deploy":
-            # Reset file streams before saving
+            # Deploy the container, but do NOT save the blueprint to the database
             obda.stream.seek(0)
             owl.stream.seek(0)
             properties.stream.seek(0)
             jdbc.stream.seek(0)
 
+            # Save files for deployment
             obda.save("/volume/ontop_input/mappings.obda")
             owl.save("/volume/ontop_input/ontologie.owl")
             properties.save("/volume/ontop_input/database.properties")
             jdbc.save("/volume/ontop_jdbc/driver.jar")
 
+            # Deploy Ontop container
             ontop_name = deploy_ontop_container(
                 "/volume/ontop_input/mappings.obda",
                 "/volume/ontop_input/ontologie.owl",
                 "/volume/ontop_input/database.properties"
             )
 
+            # Save the combination of deployed containers
             new_combo = {
                 "network_container": ontop_name,
                 "dind_container": selected_dind
@@ -92,6 +101,13 @@ def index():
                 combinations.append(new_combo)
                 save_combinations(combinations)
 
+        elif action == "insert_only":
+            utc_now = datetime.utcnow()
+            germany_tz = pytz.timezone('Europe/Berlin')
+            germany_time = pytz.utc.localize(utc_now).astimezone(germany_tz)
+
+            db.insert_blueprint("testtest", obda_data, owl_data, properties_data, jdbc_data, germany_time)
+
         return redirect("/")
 
     return render_template(
@@ -99,6 +115,7 @@ def index():
         dind_containers=dind_containers,
         combined_containers=combinations
     )
+
 
 
 
@@ -154,6 +171,35 @@ def initialize():
         return redirect(url_for('index', setup_result=f"Setup failed: {str(e)}"))
 
 
+@app.route("/blueprints")
+def list_blueprints():
+    try:
+        blueprints = db.return_blueprints()
+        return render_template("blueprint_list.html", blueprints=blueprints)
+    except Exception as e:
+        return f"Error retrieving blueprints: {e}", 500
+
+@app.route("/blueprint/<int:bp_id>/<string:file_type>")
+def view_blueprint_file(bp_id, file_type):
+    try:
+        bp = db.get_blueprint_by_id(bp_id)
+        if not bp:
+            return "Blueprint not found", 404
+
+        file_map = {
+            "obda": bp["obda_file"],
+            "owl": bp["owl_file"],
+            "properties": bp["properties_file"]
+        }
+
+        if file_type not in file_map:
+            return "Invalid file type", 400
+
+        content = file_map[file_type].decode("utf-8", errors="ignore")
+        return f"<pre>{content}</pre>"
+
+    except Exception as e:
+        return f"Error displaying file: {e}", 500
 
 
 @app.route("/query", methods=["POST", "GET"])
