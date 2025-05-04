@@ -11,7 +11,7 @@ import pytz
 app = Flask(__name__)
 DATA_FILE = "combined_containers.json"
 Network = os.getenv("Network", "database-net")
-LOG_FILE = "query_logs.jsonl"
+# LOG_FILE = "query_logs.jsonl"
 
 UPLOAD_FOLDER = "/tmp/uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
@@ -20,6 +20,7 @@ os.makedirs("/volume/backup", exist_ok=True)
 db = SQLiteDB("sqlite:////volume/backup/relay.db")
 
 db.create_blueprint_table()
+db.create_logs_table()
 
 def load_combinations():
     if os.path.exists(DATA_FILE):
@@ -32,20 +33,14 @@ def save_combinations(combos):
     with open(DATA_FILE, "w") as f:
         json.dump(combos, f, indent=2)
 
+
 def log_query(ip, container_name, query):
     utc_now = datetime.utcnow()
     germany_tz = pytz.timezone('Europe/Berlin')
     germany_time = pytz.utc.localize(utc_now).astimezone(germany_tz)
 
-    log_entry = {
-        "timestamp": germany_time.strftime("%Y-%m-%d %H:%M:%S"),  # Convert datetime to string
-        "ip": ip,
-        "container_name": container_name,
-        "query": query,
-    }
-
-    with open(LOG_FILE, "a") as f:
-        f.write(json.dumps(log_entry) + "\n")
+    # Insert log into the database
+    db.insert_log(ip, container_name, query, germany_time)
 
 
 @app.route("/", methods=["GET", "POST"])
@@ -122,17 +117,12 @@ def index():
 
 @app.route("/logs/<container_name>")
 def view_logs(container_name):
-    logs = []
-    if os.path.exists(LOG_FILE):
-        with open(LOG_FILE, "r") as f:
-            for line in f:
-                entry = json.loads(line)
-                if entry["container_name"] == container_name:
-                    logs.append(entry)
-    else:
-        logs = []
+    try:
+        logs = db.get_logs_by_container(container_name)
+        return render_template("logs.html", container_name=container_name, logs=logs)
+    except Exception as e:
+        return f"Error retrieving logs: {e}", 500
 
-    return render_template("logs.html", container_name=container_name, logs=logs)
 
 @app.route("/remove", methods=["POST"])
 def remove_combination():

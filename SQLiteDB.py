@@ -86,5 +86,50 @@ class SQLiteDB:
             result = conn.execute(stmt).fetchone()
             return dict(result._mapping) if result else None
 
+    def create_logs_table(self):
+        """
+        Creates the logs table in the database with the necessary columns.
+        """
+        # Make sure each column tuple contains the name, type, and whether it's a primary key
+        columns = [
+            ("id", Integer, True),  # id will be the primary key
+            ("timestamp", DateTime, False),  # timestamp column
+            ("ip", String, False),  # ip column
+            ("container_name", String, False),  # container_name column
+            ("query", String, False),  # query column
+        ]
 
+        # Create the logs table
+        table = Table(
+            "logs",
+            self.metadata,
+            *[Column(name, col_type, primary_key=primary_key) for name, col_type, primary_key in columns]
+        )
+        self.metadata.create_all(self.engine)
+        return table
 
+    def insert_log(self, ip, container_name, query, timestamp):
+        """
+        Insert a log entry into the logs table.
+        """
+        log_data = {
+            "timestamp": timestamp,
+            "ip": ip,
+            "container_name": container_name,
+            "query": query
+        }
+        table = self.metadata.tables.get("logs")
+        self.insert(table, [log_data])
+
+    def get_logs_by_container(self, container_name):
+        """
+        Retrieve logs for a specific container.
+        """
+        from sqlalchemy import select
+        table = self.metadata.tables.get("logs")
+        stmt = select(table).where(table.c.container_name == container_name)
+        with self.engine.connect() as conn:
+            result = conn.execute(stmt)
+            return [dict(row._mapping) for row in result]
+
+    # Other methods...
