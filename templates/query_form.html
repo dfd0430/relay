@@ -7,36 +7,51 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
 </head>
 <body>
+
     <div class="container mt-5">
+     <!-- Optional setup status message -->
+    {% if request.args.get('setup_result') %}
+        <div class="alert alert-info">
+            {{ request.args.get('setup_result') }}
+        </div>
+    {% endif %}
+
+    <!-- Initialization button -->
+    <form method="POST" action="{{ url_for('initialize') }}">
+        <button type="submit" class="btn btn-warning mb-4">Initialize Environment</button>
+    </form>
         <h1>Deploy Container</h1>
         <form method="POST" enctype="multipart/form-data">
-            <div class="form-group">
-                <label for="obda_file">OBDA File</label>
-                <input type="file" class="form-control" id="obda_file" name="obda_file" required>
-            </div>
-            <div class="form-group">
-                <label for="owl_file">OWL File</label>
-                <input type="file" class="form-control" id="owl_file" name="owl_file" required>
-            </div>
-            <div class="form-group">
-                <label for="properties_file">Properties File</label>
-                <input type="file" class="form-control" id="properties_file" name="properties_file" required>
-            </div>
-            <div class="form-group">
-                <label for="jdbc_file">JDBC Driver File</label>
-                <input type="file" class="form-control" id="jdbc_file" name="jdbc_file" required>
-            </div>
-            <div class="form-group">
-                <label for="dind_container">Select DIND Container</label>
-                <select class="form-control" id="dind_container" name="dind_container" required>
-                    {% for container in dind_containers %}
-                        <option value="{{ container }}">{{ container }}</option>
-                    {% endfor %}
-                </select>
-            </div>
+    <!-- File inputs -->
+    <div class="form-group">
+        <label for="obda_file">OBDA File</label>
+        <input type="file" class="form-control" id="obda_file" name="obda_file" required>
+    </div>
+    <div class="form-group">
+        <label for="owl_file">OWL File</label>
+        <input type="file" class="form-control" id="owl_file" name="owl_file" required>
+    </div>
+    <div class="form-group">
+        <label for="properties_file">Properties File</label>
+        <input type="file" class="form-control" id="properties_file" name="properties_file" required>
+    </div>
+    <div class="form-group">
+        <label for="jdbc_file">JDBC Driver File</label>
+        <input type="file" class="form-control" id="jdbc_file" name="jdbc_file" required>
+    </div>
+    <div class="form-group">
+        <label for="dind_container">Select DIND Container</label>
+        <select class="form-control" id="dind_container" name="dind_container" required>
+            {% for container in dind_containers %}
+                <option value="{{ container }}">{{ container }}</option>
+            {% endfor %}
+        </select>
+    </div>
 
-            <button type="submit" class="btn btn-primary">Deploy</button>
-        </form>
+    <!-- Two different buttons, same form -->
+    <button type="submit" name="action" value="deploy" class="btn btn-primary">Deploy</button>
+    <button type="submit" name="action" value="insert_only" class="btn btn-secondary">Insert Blueprint Only</button>
+</form>
 
         <h2 class="mt-5">Deployed Containers</h2>
         <table class="table table-bordered">

@@ -47,6 +47,8 @@ def index():
     combinations = load_combinations()
 
     if request.method == "POST":
+        action = request.form.get("action")
+
         obda = request.files.get("obda_file")
         owl = request.files.get("owl_file")
         properties = request.files.get("properties_file")
@@ -54,40 +56,50 @@ def index():
         selected_dind = request.form.get("dind_container")
 
         if not obda or not owl or not properties or not jdbc or not selected_dind:
-            return jsonify({"error": "All fields including DIND selection are required"}), 400
+            return jsonify({"error": "All fields are required"}), 400
 
-        obda_path = os.path.join("/volume/ontop_input", "mappings.obda")
-        owl_path = os.path.join("/volume/ontop_input", "ontologie.owl")
-        prop_path = os.path.join("/volume/ontop_input", "database.properties")
-        jdbc_path = os.path.join("/volume/ontop_jdbc", "driver.jar")
+        obda_data = obda.read()
+        owl_data = owl.read()
+        properties_data = properties.read()
+        jdbc_data = jdbc.read()
 
-        obda.save(obda_path)
-        owl.save(owl_path)
-        properties.save(prop_path)
-        jdbc.save(jdbc_path)
-
-        ontop_name = deploy_ontop_container(obda_path, owl_path, prop_path)  # Assuming it does not yet use jdbc_path
-
-        obda_data = obda.read() if obda else None
-        owl_data = owl.read() if owl else None
-        properties_data = properties.read() if properties else None
-        jdbc_data = jdbc.read() if jdbc else None
         db.insert_blueprint("testtest", obda_data, owl_data, properties_data, jdbc_data)
 
-        new_combo = {
-            "network_container": ontop_name,
-            "dind_container": selected_dind
-        }
+        if action == "deploy":
+            # Reset file streams before saving
+            obda.stream.seek(0)
+            owl.stream.seek(0)
+            properties.stream.seek(0)
+            jdbc.stream.seek(0)
 
-        if new_combo not in combinations:
-            combinations.append(new_combo)
-            save_combinations(combinations)
+            obda.save("/volume/ontop_input/mappings.obda")
+            owl.save("/volume/ontop_input/ontologie.owl")
+            properties.save("/volume/ontop_input/database.properties")
+            jdbc.save("/volume/ontop_jdbc/driver.jar")
+
+            ontop_name = deploy_ontop_container(
+                "/volume/ontop_input/mappings.obda",
+                "/volume/ontop_input/ontologie.owl",
+                "/volume/ontop_input/database.properties"
+            )
+
+            new_combo = {
+                "network_container": ontop_name,
+                "dind_container": selected_dind
+            }
+
+            if new_combo not in combinations:
+                combinations.append(new_combo)
+                save_combinations(combinations)
+
+        return redirect("/")
 
     return render_template(
         "query_form.html",
         dind_containers=dind_containers,
         combined_containers=combinations
     )
+
 
 
 
