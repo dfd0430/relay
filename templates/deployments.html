@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Deployed Containers</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h2>Deployed Containers</h2>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Network Container</th>
+                    <th>DIND Container</th>
+                    <th>Actions</th>
+                    <th>Logs</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for combo in combined_containers %}
+                <tr>
+                    <td>{{ combo.network_container }}</td>
+                    <td>{{ combo.dind_container }}</td>
+                    <td>
+                        <form action="{{ url_for('remove_combination') }}" method="POST" style="display:inline;">
+                            <input type="hidden" name="to_remove" value="{{ combo.network_container }}|{{ combo.dind_container }}">
+                            <button type="submit" class="btn btn-danger btn-sm">Remove</button>
+                        </form>
+                    </td>
+                    <td>
+                        <a href="{{ url_for('view_logs', container_name=combo.dind_container) }}" class="btn btn-info btn-sm">View Logs</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

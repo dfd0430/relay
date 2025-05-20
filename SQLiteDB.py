@@ -37,54 +37,54 @@ class SQLiteDB:
             result = conn.execute(stmt)
             return [dict(row._mapping) for row in result]
 
-    def create_blueprint_table(self):
-        """
-        Creates the blueprint table with the necessary columns.
-        """
-        columns = [
-            ("id", Integer),            # id will be the primary key
-            ("name", String),           # name column for the blueprint's name
-            ("obda_file", LargeBinary), # obda_file as a binary field
-            ("owl_file", LargeBinary),  # owl_file as a binary field
-            ("properties_file", LargeBinary), # mapping_file as a binary field
-            ("jdbc_file", LargeBinary), # jdbc_file as a binary field
-            ("timestamp", DateTime),
-        ]
-        # Create the blueprint table using the existing SQLiteDB object
-        self.create_table("blueprints", columns)
-
-    def insert_blueprint(self, name, obda_file, owl_file, properties_file, jdbc_file, timestamp):
-        """
-        Insert a blueprint into the blueprints table.
-        """
-        blueprint_data = {
-            "name": name,
-            "obda_file": obda_file,
-            "owl_file": owl_file,
-            "properties_file": properties_file,
-            "jdbc_file": jdbc_file,
-            "timestamp": timestamp
-        }
-
-        # Insert the blueprint data into the table
-        table = self.metadata.tables.get("blueprints")
-
-        self.insert(table, [blueprint_data])
-
-    def return_blueprints(self):
-        table = self.metadata.tables.get("blueprints")
-        return self.select_all(table)
-
-    def get_blueprint_by_id(self, blueprint_id):
-        """
-        Retrieve a single blueprint by its ID.
-        """
-        from sqlalchemy import select
-        table = self.metadata.tables.get("blueprints")
-        stmt = select(table).where(table.c.id == blueprint_id)
-        with self.engine.connect() as conn:
-            result = conn.execute(stmt).fetchone()
-            return dict(result._mapping) if result else None
+    # def create_blueprint_table(self):
+    #     """
+    #     Creates the blueprint table with the necessary columns.
+    #     """
+    #     columns = [
+    #         ("id", Integer),            # id will be the primary key
+    #         ("name", String),           # name column for the blueprint's name
+    #         ("obda_file", LargeBinary), # obda_file as a binary field
+    #         ("owl_file", LargeBinary),  # owl_file as a binary field
+    #         ("properties_file", LargeBinary), # mapping_file as a binary field
+    #         ("jdbc_file", LargeBinary), # jdbc_file as a binary field
+    #         ("timestamp", DateTime),
+    #     ]
+    #     # Create the blueprint table using the existing SQLiteDB object
+    #     self.create_table("blueprints", columns)
+    #
+    # def insert_blueprint(self, name, obda_file, owl_file, properties_file, jdbc_file, timestamp):
+    #     """
+    #     Insert a blueprint into the blueprints table.
+    #     """
+    #     blueprint_data = {
+    #         "name": name,
+    #         "obda_file": obda_file,
+    #         "owl_file": owl_file,
+    #         "properties_file": properties_file,
+    #         "jdbc_file": jdbc_file,
+    #         "timestamp": timestamp
+    #     }
+    #
+    #     # Insert the blueprint data into the table
+    #     table = self.metadata.tables.get("blueprints")
+    #
+    #     self.insert(table, [blueprint_data])
+    #
+    # def return_blueprints(self):
+    #     table = self.metadata.tables.get("blueprints")
+    #     return self.select_all(table)
+    #
+    # def get_blueprint_by_id(self, blueprint_id):
+    #     """
+    #     Retrieve a single blueprint by its ID.
+    #     """
+    #     from sqlalchemy import select
+    #     table = self.metadata.tables.get("blueprints")
+    #     stmt = select(table).where(table.c.id == blueprint_id)
+    #     with self.engine.connect() as conn:
+    #         result = conn.execute(stmt).fetchone()
+    #         return dict(result._mapping) if result else None
 
     def create_logs_table(self):
         """
@@ -133,3 +133,73 @@ class SQLiteDB:
             return [dict(row._mapping) for row in result]
 
     # Other methods...
+
+    def create_db_connection_table(self):
+        """
+        Creates the database_connections table for independent DB storage.
+        """
+        columns = [
+            ("id", Integer),  # primary key
+            ("name", String),
+            ("jdbc_file", LargeBinary),
+            ("properties_file", LargeBinary),
+            ("timestamp", DateTime),
+        ]
+        self.create_table("database_connections", columns)
+
+    def insert_db_connection(self, name, jdbc_file, properties_file, timestamp):
+        table = self.metadata.tables.get("database_connections")
+        data = {
+            "name": name,
+            "jdbc_file": jdbc_file,
+            "properties_file": properties_file,
+            "timestamp": timestamp,
+        }
+        self.insert(table, [data])
+
+    def get_all_db_connections(self):
+        table = self.metadata.tables.get("database_connections")
+        return self.select_all(table)
+
+    def get_db_connection_by_id(self, db_id):
+        from sqlalchemy import select
+        table = self.metadata.tables.get("database_connections")
+        stmt = select(table).where(table.c.id == db_id)
+        with self.engine.connect() as conn:
+            result = conn.execute(stmt).fetchone()
+            return dict(result._mapping) if result else None
+
+    def create_obda_configuration_table(self):
+        """
+        Creates the obda_configurations table for storing OWL and OBDA files.
+        """
+        columns = [
+            ("id", Integer),
+            ("name", String),
+            ("owl_file", LargeBinary),
+            ("obda_file", LargeBinary),
+            ("timestamp", DateTime),
+        ]
+        self.create_table("obda_configurations", columns)
+
+    def insert_obda_configuration(self, name, owl_data, obda_data, timestamp):
+        table = self.metadata.tables.get("obda_configurations")
+        data = {
+            "name": name,
+            "owl_file": owl_data,
+            "obda_file": obda_data,
+            "timestamp": timestamp,
+        }
+        self.insert(table, [data])
+
+    def get_all_obda_configurations(self):
+        table = self.metadata.tables.get("obda_configurations")
+        return self.select_all(table)
+
+    def get_obda_configuration_by_id(self, obda_id):
+        from sqlalchemy import select
+        table = self.metadata.tables.get("obda_configurations")
+        stmt = select(table).where(table.c.id == obda_id)
+        with self.engine.connect() as conn:
+            result = conn.execute(stmt).fetchone()
+            return dict(result._mapping) if result else None

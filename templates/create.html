@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Create Endpoint</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+</head>
+<body class="container mt-5">
+
+    <h2 class="mb-4">How do you want to configure the database?</h2>
+
+    <div class="d-grid gap-2">
+        <a href="{{ url_for('use_existing_db') }}" class="btn btn-primary btn-lg mb-3">Use Existing Database Connection</a>
+        <a href="{{ url_for('create_new_db') }}" class="btn btn-secondary btn-lg">Create New Database Connection</a>
+    </div>
+
+</body>
+</html>

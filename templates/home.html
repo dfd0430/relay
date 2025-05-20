@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SPARQL Endpoint Manager</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container text-center mt-5">
+        <h1 class="mb-4">SPARQL Endpoint Manager</h1>
+
+        <a href="{{ url_for('create_endpoint') }}" class="btn btn-success btn-lg m-3">Create New Endpoint</a>
+        <a href="{{ url_for('list_deployments') }}" class="btn btn-primary btn-lg m-3">Deployed Containers</a>
+    </div>
+</body>
+</html>

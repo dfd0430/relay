@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Use Existing OBDA Blueprint</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body class="container py-5">
+
+    <h2 class="mb-4">Select an Existing OBDA Blueprint</h2>
+
+    {% if blueprints %}
+        <ul class="list-group">
+            {% for obda in blueprints %}
+                <li class="list-group-item">
+                    <strong>{{ obda.name }}</strong> (Created: {{ obda.timestamp }})
+                    <div class="mt-2">
+                        <a href="{{ url_for('view_obda_file', obda_id=obda.id, file_type='owl') }}" class="btn btn-sm btn-outline-primary">View OWL</a>
+                        <a href="{{ url_for('view_obda_file', obda_id=obda.id, file_type='obda') }}" class="btn btn-sm btn-outline-secondary">View OBDA</a>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No OBDA configurations available.</p>
+    {% endif %}
+
+    <div class="mt-4">
+        <a href="{{ url_for('configure_sparql', db_id=db_id) }}" class="btn btn-secondary">Back</a>
+    </div>
+
+</body>
+</html>
