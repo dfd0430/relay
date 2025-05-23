@@ -169,6 +169,16 @@ class SQLiteDB:
             result = conn.execute(stmt).fetchone()
             return dict(result._mapping) if result else None
 
+    def delete_db_connection(self, db_id):
+        """
+        Delete a database connection by its ID.
+        """
+        from sqlalchemy import delete
+        table = self.metadata.tables.get("database_connections")
+        stmt = delete(table).where(table.c.id == db_id)
+        with self.engine.begin() as conn:
+            conn.execute(stmt)
+
     def create_obda_configuration_table(self):
         """
         Creates the obda_configurations table for storing OWL and OBDA files.
@@ -203,3 +213,14 @@ class SQLiteDB:
         with self.engine.connect() as conn:
             result = conn.execute(stmt).fetchone()
             return dict(result._mapping) if result else None
+
+    def delete_blueprint(self, blueprint_id):
+        """
+        Delete a blueprint by its ID.
+        """
+        from sqlalchemy import delete
+        table = self.metadata.tables.get("obda_configurations")
+        stmt = delete(table).where(table.c.id == blueprint_id)
+        with self.engine.begin() as conn:
+            conn.execute(stmt)
+
