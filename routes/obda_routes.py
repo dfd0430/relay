@@ -15,16 +15,8 @@ from flask import session
 def register_obda_routes(app, db):
     @app.route("/configure_sparql")
     def configure_sparql():
-        db_id = session.get("selected_db_id")
+        selected_db= session.get("connection_info", {}).get("name")
 
-        if not db_id:
-            return redirect(url_for("use_existing_db"))
-
-        selected_db = db.get_db_connection_by_id(int(db_id))
-        if not selected_db:
-            return redirect(url_for("use_existing_db"))
-
-        # Continue with rendering the SPARQL config
         return render_template("configure_sparql.html", selected_db=selected_db)
 
     @app.route("/use_existing_obda")

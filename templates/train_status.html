@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Latest Deployed Train</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+</head>
+<body>
+<div class="container mt-5">
+    <h2>Latest Deployed Train</h2>
+
+    <table class="table table-bordered">
+        <thead>
+        <tr>
+            <th>Network Container</th>
+            <th>DIND Container</th>
+            <th>Actions</th>
+            <th>Logs</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>{{ train.network_container }}</td>
+            <td>{{ train.dind_container }}</td>
+            <td>
+                <form action="{{ url_for('remove_combination') }}" method="POST" style="display:inline;">
+                    <input type="hidden" name="to_remove"
+                           value="{{ train.network_container }}|{{ train.dind_container }}">
+                    <button type="submit" class="btn btn-danger btn-sm">Remove</button>
+                </form>
+            </td>
+            <td>
+                <a href="{{ url_for('view_logs_deployment', container_name=train.dind_container) }}"
+                   class="btn btn-info btn-sm">View Logs</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

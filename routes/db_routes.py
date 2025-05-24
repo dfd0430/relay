@@ -28,24 +28,53 @@ def register_db_routes(app, db):
         if not selected_db:
             return redirect(url_for("use_existing_db"))
 
-        session["selected_db_id"] = db_id
+        session["connection_info"] =  {
+                    "is_temp": False,
+                    "id": db_id
+                }
 
         return redirect(url_for("configure_sparql"))
 
     @app.route("/create_new_db", methods=["GET", "POST"])
     def create_new_db():
-        message = None
-        error = None
         if request.method == "POST":
+            action = request.form.get("action")
             name = request.form.get("name")
             jdbc_file = request.files.get("jdbc_file")
             properties_file = request.files.get("properties_file")
-            if not name or not jdbc_file or not properties_file:
-                error = "All fields are required."
-            else:
-                jdbc_data = jdbc_file.read()
-                properties_data = properties_file.read()
-                timestamp = datetime.utcnow()
+
+            if not jdbc_file or not properties_file or (action == "save_and_deploy" and not name):
+                return render_template("create_new_db.html", error="All fields are required.")
+
+            jdbc_data = jdbc_file.read()
+            properties_data = properties_file.read()
+            timestamp = datetime.now()
+
+            if action == "save_and_deploy":
+                # Permanent DB entry
                 db.insert_db_connection(name, jdbc_data, properties_data, timestamp)
-                message = "Database connection saved successfully."
-        return render_template("create_new_db.html", message=message, error=error)
+
+                # Fetch the latest inserted ID (could also return from insert)
+                all_conns = db.get_all_db_connections()
+                conn_id = max(conn["id"] for conn in all_conns)
+
+                session["connection_info"] = {
+                    "is_temp": False,
+                    "id": conn_id,
+                    "name":name
+                }
+
+            elif action == "deploy_only":
+
+                conn_id = db.insert_temp_db_connection(name or "temp", jdbc_data, properties_data, timestamp)
+
+                session["connection_info"] = {
+                    "is_temp": True,
+                    "id": conn_id,
+                    "name": name
+                }
+
+            return redirect(url_for("configure_sparql"))
+
+        return render_template("create_new_db.html")
+

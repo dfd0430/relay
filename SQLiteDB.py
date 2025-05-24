@@ -132,7 +132,7 @@ class SQLiteDB:
             result = conn.execute(stmt)
             return [dict(row._mapping) for row in result]
 
-    # Other methods...
+    ##################################################################################################################################################
 
     def create_db_connection_table(self):
         """
@@ -178,7 +178,7 @@ class SQLiteDB:
         stmt = delete(table).where(table.c.id == db_id)
         with self.engine.begin() as conn:
             conn.execute(stmt)
-
+##################################################################################################################################################
     def create_obda_configuration_table(self):
         """
         Creates the obda_configurations table for storing OWL and OBDA files.
@@ -224,3 +224,54 @@ class SQLiteDB:
         with self.engine.begin() as conn:
             conn.execute(stmt)
 
+##################################################################################################################################################
+    def create_temp_db_connection_table(self):
+        """
+        Creates the temp_database_connections table for short-lived DB storage.
+        """
+        columns = [
+            ("id", Integer),  # primary key
+            ("name", String),
+            ("jdbc_file", LargeBinary),
+            ("properties_file", LargeBinary),
+            ("timestamp", DateTime),
+        ]
+        self.create_table("temp_database_connections", columns)
+
+    def insert_temp_db_connection(self, name, jdbc_file, properties_file, timestamp):
+        table = self.metadata.tables.get("temp_database_connections")
+        data = {
+            "name": name,
+            "jdbc_file": jdbc_file,
+            "properties_file": properties_file,
+            "timestamp": timestamp,
+        }
+
+        stmt = insert(table).returning(table.c.id)
+
+        with self.engine.begin() as conn:
+            result = conn.execute(stmt, [data])
+            inserted_id = result.scalar()
+            return inserted_id
+
+    def get_all_temp_db_connections(self):
+        table = self.metadata.tables.get("temp_database_connections")
+        return self.select_all(table)
+
+    def get_temp_db_connection_by_id(self, db_id):
+        from sqlalchemy import select
+        table = self.metadata.tables.get("temp_database_connections")
+        stmt = select(table).where(table.c.id == db_id)
+        with self.engine.connect() as conn:
+            result = conn.execute(stmt).fetchone()
+            return dict(result._mapping) if result else None
+
+    def delete_temp_db_connection(self, db_id):
+        """
+        Delete a temporary database connection by its ID.
+        """
+        from sqlalchemy import delete
+        table = self.metadata.tables.get("temp_database_connections")
+        stmt = delete(table).where(table.c.id == db_id)
+        with self.engine.begin() as conn:
+            conn.execute(stmt)
