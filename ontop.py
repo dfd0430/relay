@@ -12,12 +12,21 @@ HOST_INPUT_PATH = "/var/lib/docker/volumes/volume_python/_data/ontop_input"
 HOST_JDBC_PATH = "/var/lib/docker/volumes/volume_python/_data/ontop_jdbc"
 INPUT_PATH = "/volume/ontop_input"
 JDBC_PATH = "/volume/ontop_jdbc"
-# Source JDBC JAR on your host filesystem (adjust if needed)
+
 JDBC_JAR_SOURCE = "./jdbc/driver.jar"
 JDBC_JAR_DEST = os.path.join(JDBC_PATH, "driver.jar")
 
+def save_deployment_files(obda_data, owl_data, properties_data, jdbc_data):
+    with open("/volume/ontop_input/mappings.obda", "wb") as f:
+        f.write(obda_data)
+    with open("/volume/ontop_input/ontologie.owl", "wb") as f:
+        f.write(owl_data)
+    with open("/volume/ontop_input/database.properties", "wb") as f:
+        f.write(properties_data)
+    with open("/volume/ontop_jdbc/driver.jar", "wb") as f:
+        f.write(jdbc_data)
 
-def write_input_files_to_host(obda_content,owl_content,properties_content):
+def init_directories():
     # Ensure required directories exist
     shutil.rmtree(HOST_INPUT_PATH, ignore_errors=True)
 
@@ -27,18 +36,12 @@ def write_input_files_to_host(obda_content,owl_content,properties_content):
     os.makedirs(JDBC_PATH, exist_ok=True)
     os.makedirs(INPUT_PATH, exist_ok=True)
 
-def deploy_ontop_container(obda_content,owl_content,properties_content):
+def deploy_ontop_container(obda_data, owl_data, properties_data, jdbc_data):
+    save_deployment_files(obda_data, owl_data, properties_data, jdbc_data)
+
     client = docker.DockerClient(base_url='unix://var/run/docker.sock')
 
-    # Stop and remove any existing container
-    try:
-        client.containers.get("ontoptest").remove(force=True)
-    except docker.errors.NotFound:
-        pass
-
-    # Prepare files
-    write_input_files_to_host(obda_content,owl_content,properties_content)
-
+    init_directories()
     random_name = f"ontop{uuid.uuid4().hex[:8]}"
 
 
