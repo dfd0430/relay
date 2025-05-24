@@ -9,12 +9,14 @@ from docker_functions import *
 from SQLiteDB import *
 from ontop import deploy_ontop_container
 from utils import load_combinations, save_combinations, log_query
+from flask import session
 
 
 def register_obda_routes(app, db):
     @app.route("/configure_sparql")
     def configure_sparql():
-        db_id = request.args.get("db_id")
+        db_id = session.get("selected_db_id")
+
         if not db_id:
             return redirect(url_for("use_existing_db"))
 
@@ -22,13 +24,13 @@ def register_obda_routes(app, db):
         if not selected_db:
             return redirect(url_for("use_existing_db"))
 
-        return render_template("configure_sparql.html", db=selected_db)
+        # Continue with rendering the SPARQL config
+        return render_template("configure_sparql.html", selected_db=selected_db)
 
     @app.route("/use_existing_obda")
     def use_existing_obda():
-        db_id = request.args.get("db_id")
         obda_blueprints = db.get_all_obda_configurations()
-        return render_template("use_existing_obda.html", blueprints=obda_blueprints, db_id=db_id)
+        return render_template("use_existing_obda.html", blueprints=obda_blueprints)
 
     @app.route("/view_obda_file/<int:obda_id>/<file_type>")
     def view_obda_file(obda_id, file_type):
@@ -66,3 +68,13 @@ def register_obda_routes(app, db):
                 message = "OBDA blueprint saved successfully."
 
         return render_template("create_new_obda.html", message=message, error=error, db_id=db_id)
+
+    @app.route("/select_obda", methods=["POST"])
+    def select_obda():
+        obda_id = request.form.get("obda_id")
+        if not obda_id:
+            return redirect(url_for("use_existing_obda"))  # fallback if no selection
+
+        session["selected_obda_id"] = int(obda_id)
+
+        return redirect(url_for("select_train"))

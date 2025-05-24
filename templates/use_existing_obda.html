@@ -14,9 +14,13 @@
             {% for obda in blueprints %}
                 <li class="list-group-item">
                     <strong>{{ obda.name }}</strong> (Created: {{ obda.timestamp }})
-                    <div class="mt-2">
+                    <div class="mt-2 d-flex gap-2 flex-wrap">
                         <a href="{{ url_for('view_obda_file', obda_id=obda.id, file_type='owl') }}" class="btn btn-sm btn-outline-primary">View OWL</a>
                         <a href="{{ url_for('view_obda_file', obda_id=obda.id, file_type='obda') }}" class="btn btn-sm btn-outline-secondary">View OBDA</a>
+                        <form method="POST" action="{{ url_for('select_obda') }}">
+                            <input type="hidden" name="obda_id" value="{{ obda.id }}">
+                            <button type="submit" class="btn btn-sm btn-success">Select</button>
+                        </form>
                     </div>
                 </li>
             {% endfor %}
@@ -26,7 +30,7 @@
     {% endif %}
 
     <div class="mt-4">
-        <a href="{{ url_for('configure_sparql', db_id=db_id) }}" class="btn btn-secondary">Back</a>
+        <a href="{{ url_for('configure_sparql') }}" class="btn btn-secondary">Back</a>
     </div>
 
 </body>

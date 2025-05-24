@@ -16,15 +16,21 @@ def register_db_routes(app, db):
         db_connections = db.get_all_db_connections()
         return render_template("create_db.html", connections=db_connections)
 
+    from flask import session
+
     @app.route("/select_db_connection", methods=["POST"])
     def select_db_connection():
         db_id = request.form.get("db_id")
+
         if not db_id:
             return redirect(url_for("use_existing_db"))
         selected_db = db.get_db_connection_by_id(int(db_id))
         if not selected_db:
             return redirect(url_for("use_existing_db"))
-        return redirect(url_for("configure_sparql", db_id=db_id))
+
+        session["selected_db_id"] = db_id
+
+        return redirect(url_for("configure_sparql"))
 
     @app.route("/create_new_db", methods=["GET", "POST"])
     def create_new_db():

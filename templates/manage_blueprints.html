@@ -9,7 +9,6 @@
 
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h3>Manage OBDA Blueprints</h3>
-
     </div>
 
     {% if obda_blueprints|length == 0 %}
@@ -17,15 +16,21 @@
     {% else %}
         <div class="list-group">
             {% for bp in obda_blueprints %}
-                <div class="list-group-item d-flex justify-content-between align-items-center">
-                    <div>
-                        <strong>{{ bp.name }}</strong><br />
-                        <small class="text-muted">Created: {{ bp.timestamp }}</small>
+                <div class="list-group-item">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>{{ bp.name }}</strong><br />
+                            <small class="text-muted">Created: {{ bp.timestamp }}</small>
+                        </div>
+                        <form method="POST" action="{{ url_for('delete_blueprint') }}">
+                            <input type="hidden" name="blueprint_id" value="{{ bp.id }}" />
+                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                        </form>
                     </div>
-                    <form method="POST" action="{{ url_for('delete_blueprint') }}">
-                        <input type="hidden" name="blueprint_id" value="{{ bp.id }}" />
-                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-                    </form>
+                    <div class="mt-2">
+                        <a href="{{ url_for('view_obda_file', obda_id=bp.id, file_type='owl') }}" class="btn btn-sm btn-outline-primary">View OWL</a>
+                        <a href="{{ url_for('view_obda_file', obda_id=bp.id, file_type='obda') }}" class="btn btn-sm btn-outline-secondary">View OBDA</a>
+                    </div>
                 </div>
             {% endfor %}
         </div>

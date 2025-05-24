@@ -7,13 +7,13 @@
 </head>
 <body class="container py-5">
 
-    <h2 class="mb-4">Configure SPARQL for: {{ db.name }}</h2>
+    <h2 class="mb-4">Configure SPARQL for: {{ selected_db.name }}</h2>
 
     <div class="d-grid gap-3">
-        <a href="{{ url_for('use_existing_obda', db_id=db.id) }}" class="btn btn-outline-primary btn-lg">
+        <a href="{{ url_for('use_existing_obda') }}" class="btn btn-outline-primary btn-lg">
             Use Existing OBDA Blueprint
         </a>
-        <a href="{{ url_for('create_new_obda', db_id=db.id) }}" class="btn btn-outline-secondary btn-lg">
+        <a href="{{ url_for('create_new_obda') }}" class="btn btn-outline-secondary btn-lg">
             Create New OBDA Blueprint
         </a>
     </div>
