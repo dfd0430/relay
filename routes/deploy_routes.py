@@ -30,36 +30,49 @@ def register_deploy_routes(app, db):
 
     @app.route("/train_ready")
     def train_ready():
-        # 1. Pull context out of session
-        obda_id = session.get("selected_obda_id")
+        # 1. Pull context from session
+        obda_info = session.get("selected_obda", {})
         connection_info = session.get("connection_info", {})
-        db_id = connection_info.get("id")
-        is_temp = connection_info.get("is_temp", False)
         dind_container = session.get("selected_train")
 
-        # 2. Validate
+        obda_id = obda_info.get("id")
+        obda_is_temp = obda_info.get("is_temp", False)
+
+        db_id = connection_info.get("id")
+        db_is_temp = connection_info.get("is_temp", False)
+
+        # 2. Validate session state
         if not obda_id or not db_id or not dind_container:
+            print(1)
             return redirect(url_for("select_train"))
 
-        # 3. Fetch files from DB (choose temp or permanent based on is_temp)
-        obda_cfg = db.get_obda_configuration_by_id(obda_id)
+        # 3. Fetch OBDA
+        if obda_is_temp:
+            obda_cfg = db.get_temp_obda_configuration_by_id(obda_id)
+        else:
+            obda_cfg = db.get_obda_configuration_by_id(obda_id)
 
-        if is_temp:
-            db_conn = db.get_temp_db_connection_by_id(db_id)  # You should implement this method
+        # 4. Fetch DB connection
+        if db_is_temp:
+            db_conn = db.get_temp_db_connection_by_id(db_id)
         else:
             db_conn = db.get_db_connection_by_id(db_id)
 
+        # 5. Validation
         if not obda_cfg or not db_conn:
+            print(2)
             return redirect(url_for("select_train"))
 
+        # 6. Extract file content
         obda_data = obda_cfg["obda_file"]
         owl_data = obda_cfg["owl_file"]
         properties_data = db_conn["properties_file"]
         jdbc_data = db_conn["jdbc_file"]
 
-
+        # 7. Deploy container
         ontop_name = deploy_ontop_container(obda_data, owl_data, properties_data, jdbc_data)
 
+        # 8. Track combo
         combinations = load_combinations()
         new_combo = {
             "network_container": ontop_name,
@@ -69,10 +82,7 @@ def register_deploy_routes(app, db):
             combinations.append(new_combo)
             save_combinations(combinations)
 
-        session["latest_train"] = {
-            "network_container": ontop_name,
-            "dind_container": dind_container
-        }
+        session["latest_train"] = new_combo
 
         return redirect(url_for("train_status"))
 

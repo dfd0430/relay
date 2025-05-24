@@ -24,13 +24,10 @@ def register_db_routes(app, db):
 
         if not db_id:
             return redirect(url_for("use_existing_db"))
-        selected_db = db.get_db_connection_by_id(int(db_id))
-        if not selected_db:
-            return redirect(url_for("use_existing_db"))
 
         session["connection_info"] =  {
                     "is_temp": False,
-                    "id": db_id
+                    "id": db_id,
                 }
 
         return redirect(url_for("configure_sparql"))
@@ -52,11 +49,7 @@ def register_db_routes(app, db):
 
             if action == "save_and_deploy":
                 # Permanent DB entry
-                db.insert_db_connection(name, jdbc_data, properties_data, timestamp)
-
-                # Fetch the latest inserted ID (could also return from insert)
-                all_conns = db.get_all_db_connections()
-                conn_id = max(conn["id"] for conn in all_conns)
+                conn_id = db.insert_db_connection(name, jdbc_data, properties_data, timestamp)
 
                 session["connection_info"] = {
                     "is_temp": False,

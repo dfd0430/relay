@@ -20,7 +20,8 @@
     <form method="POST" enctype="multipart/form-data">
         <div class="mb-3">
             <label for="name" class="form-label">Configuration Name</label>
-            <input type="text" name="name" id="name" class="form-control" required>
+            <input type="text" name="name" id="name" class="form-control"
+                   {% if request.form.get('action') == 'save_and_select' %}required{% endif %}>
         </div>
 
         <div class="mb-3">
@@ -33,12 +34,15 @@
             <input type="file" name="obda_file" id="obda_file" class="form-control" required>
         </div>
 
-        <button type="submit" class="btn btn-primary">Save Configuration</button>
+        <div class="d-flex gap-2">
+            <button type="submit" name="action" value="save_and_select" class="btn btn-success">Save and Select</button>
+            <button type="submit" name="action" value="select_only" class="btn btn-warning">Only Select</button>
+        </div>
     </form>
 
     <div class="mt-4">
-    <a href="{{ url_for('configure_sparql', db_id=db_id) }}" class="btn btn-secondary">Back</a>
-</div>
+        <a href="{{ url_for('configure_sparql', db_id=db_id) }}" class="btn btn-secondary">Back</a>
+    </div>
 
 </body>
 </html>

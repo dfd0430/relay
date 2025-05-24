@@ -155,7 +155,11 @@ class SQLiteDB:
             "properties_file": properties_file,
             "timestamp": timestamp,
         }
-        self.insert(table, [data])
+        stmt = insert(table).values(**data).returning(table.c.id)
+        with self.engine.begin() as conn:
+            result = conn.execute(stmt)
+            inserted_id = result.scalar_one()  # fetch the inserted id
+        return inserted_id
 
     def get_all_db_connections(self):
         table = self.metadata.tables.get("database_connections")
@@ -192,15 +196,25 @@ class SQLiteDB:
         ]
         self.create_table("obda_configurations", columns)
 
+
     def insert_obda_configuration(self, name, owl_data, obda_data, timestamp):
         table = self.metadata.tables.get("obda_configurations")
+        if table is None:
+            raise ValueError("obda_configurations table not found in metadata.")
+
         data = {
             "name": name,
             "owl_file": owl_data,
             "obda_file": obda_data,
             "timestamp": timestamp,
         }
-        self.insert(table, [data])
+
+        stmt = insert(table).values(**data).returning(table.c.id)
+        with self.engine.begin() as conn:
+            result = conn.execute(stmt)
+            inserted_id = result.scalar_one()
+
+        return inserted_id
 
     def get_all_obda_configurations(self):
         table = self.metadata.tables.get("obda_configurations")
@@ -275,3 +289,54 @@ class SQLiteDB:
         stmt = delete(table).where(table.c.id == db_id)
         with self.engine.begin() as conn:
             conn.execute(stmt)
+##################################################################################################################################################
+
+    def create_temp_obda_configuration_table(self):
+        """
+        Creates the temp_obda_configurations table for temporary storage of OWL and OBDA files.
+        """
+        columns = [
+            ("id", Integer),
+            ("name", String),
+            ("owl_file", LargeBinary),
+            ("obda_file", LargeBinary),
+            ("timestamp", DateTime),
+        ]
+        self.create_table("temp_obda_configurations", columns)
+
+
+
+    def insert_temp_obda_configuration(self, name, owl_data, obda_data, timestamp):
+        table = self.metadata.tables.get("temp_obda_configurations")
+        data = {
+            "name": name,
+            "owl_file": owl_data,
+            "obda_file": obda_data,
+            "timestamp": timestamp,
+        }
+        stmt = insert(table).values(**data).returning(table.c.id)
+        with self.engine.begin() as conn:
+            result = conn.execute(stmt)
+            inserted_id = result.scalar_one()  # get the inserted id
+        return inserted_id
+
+    def get_all_temp_obda_configurations(self):
+        table = self.metadata.tables.get("temp_obda_configurations")
+        return self.select_all(table)
+
+    def get_temp_obda_configuration_by_id(self, obda_id):
+        from sqlalchemy import select
+        table = self.metadata.tables.get("temp_obda_configurations")
+        stmt = select(table).where(table.c.id == obda_id)
+        with self.engine.connect() as conn:
+            result = conn.execute(stmt).fetchone()
+            return dict(result._mapping) if result else None
+
+    def delete_temp_obda_configuration(self, obda_id):
+        from sqlalchemy import delete
+        table = self.metadata.tables.get("temp_obda_configurations")
+        stmt = delete(table).where(table.c.id == obda_id)
+        with self.engine.begin() as conn:
+            conn.execute(stmt)
+
+

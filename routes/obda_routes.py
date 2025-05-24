@@ -48,16 +48,33 @@ def register_obda_routes(app, db):
             name = request.form.get("name")
             owl_file = request.files.get("owl_file")
             obda_file = request.files.get("obda_file")
+            action = request.form.get("action")
 
-            if not name or not owl_file or not obda_file:
+            if not owl_file or not obda_file or (action == "save_and_select" and not name):
                 error = "All fields are required."
             else:
                 owl_data = owl_file.read()
                 obda_data = obda_file.read()
                 timestamp = datetime.utcnow()
 
-                db.insert_obda_configuration(name, owl_data, obda_data, timestamp)
-                message = "OBDA blueprint saved successfully."
+                if action == "save_and_select":
+                    obda_id = db.insert_obda_configuration(name, owl_data, obda_data, timestamp)
+                    session["selected_obda"] = {
+                    "id": obda_id,
+                    "is_temp": False,
+                    "name": name
+                }
+                else:
+
+                    obda_id = db.insert_temp_obda_configuration(name, owl_data, obda_data, timestamp)
+                    session["selected_obda"] = {
+                        "id": obda_id,
+                        "is_temp": True,
+                        "name": name
+                    }
+
+
+                return redirect(url_for("select_train"))
 
         return render_template("create_new_obda.html", message=message, error=error, db_id=db_id)
 
@@ -67,6 +84,9 @@ def register_obda_routes(app, db):
         if not obda_id:
             return redirect(url_for("use_existing_obda"))  # fallback if no selection
 
-        session["selected_obda_id"] = int(obda_id)
+        session["selected_obda"] = {
+            "id": int(obda_id),
+            "is_temp": False,
 
+        }
         return redirect(url_for("select_train"))
