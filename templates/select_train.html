@@ -13,9 +13,9 @@
         <ul class="list-group">
             {% for container in dind_containers %}
                 <li class="list-group-item d-flex justify-content-between align-items-center">
-                    {{ container }}
+                    <span><strong>{{ container.name }}</strong> ({{ container.id }})</span>
                     <form method="POST" action="{{ url_for('train_selection') }}">
-                        <input type="hidden" name="selected_train" value="{{ container }}">
+                        <input type="hidden" name="selected_train" value="{{ container.id }}|{{ container.name }}">
                         <button type="submit" class="btn btn-success btn-sm">Deploy</button>
                     </form>
                 </li>

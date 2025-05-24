@@ -12,36 +12,45 @@ CLIENT_KEY = "/certs/key.pem"
 FLASK_SERVER_ADDRESS = "137.226.58.20:8082"
 
 def get_container_name_by_ip(ip):
-
-
     tls_config = TLSConfig(client_cert=(CLIENT_CERT, CLIENT_KEY), verify=False)
 
     try:
         docker_client = docker.DockerClient(base_url=DOCKER_HOST, tls=tls_config)
         containers = docker_client.containers.list()
+
         for container in containers:
             container_inspect = container.attrs
             networks = container_inspect.get("NetworkSettings", {}).get("Networks", {})
+
             with open(IP_LOG_FILE, "a") as log_file:
                 log_file.write(f"container inspect result: {networks}\n")
 
             for network in networks.values():
                 if network.get("IPAddress") == ip:
-                    container_name = container.name
+                    container_info = {
+                        "name": container.name,
+                        "id": container.short_id
+                    }
+
                     with open(IP_LOG_FILE, "a") as log_file:
                         log_file.write(
-                            f"{datetime.now()} - IP: {ip} - Container: {container_name}\n"
+                            f"{datetime.now()} - IP: {ip} - Container: {container_info}\n"
                         )
-                    return container_name
+
+                    return container_info
 
     except Exception as e:
-        error_message = f"Error resolving container: {str(e)}"
-        return error_message
+        error_message = f"{datetime.now()} - Error resolving container: {str(e)}\n"
+        with open(IP_LOG_FILE, "a") as log_file:
+            log_file.write(error_message)
+        return {"name": "Unknown", "id": "Unknown"}
 
+    # If not found
     with open(IP_LOG_FILE, "a") as log_file:
         log_file.write(f"{datetime.now()} - IP: {ip} - Container: Unknown\n")
 
-    return "Unknown"
+    return {"name": "Unknown", "id": "Unknown"}
+
 
 def list_containers_on_network(network_name):
     client = docker.DockerClient(base_url='unix://var/run/docker.sock')
@@ -100,11 +109,13 @@ def list_dind_containers():
                     f"{datetime.now()} - Container: {container.name}, Networks: {container_info['networks']}\n"
                 )
 
-        # Extract the names correctly from the container objects
-        names = [container.name for container in containers]  # Corrected to use .name
-        return names
-        # return container_list
-        # names = [container['name'] for container in containers]  # print(names)
+        # Return list of dicts with id and name
+        return [{"id": c["id"], "name": c["name"]} for c in container_list]
+
+    except Exception as e:
+        print(f"Error listing containers: {e}")
+        return []
+
 
     except Exception as e:
         error_message = f"Error listing containers: {str(e)}"
@@ -113,12 +124,12 @@ def list_dind_containers():
         return {"error": error_message}
 
 
-def find_network_container(dind_name, filename='combined_containers.json'):
+def find_network_container(dind_id, filename='combined_containers.json'):
     with open(filename, 'r') as file:
         data = json.load(file)
 
     for item in data:
-        if item['dind_container'] == dind_name:
+        if item['dind_container'] == dind_id:
             return item['network_container']
 
     return None

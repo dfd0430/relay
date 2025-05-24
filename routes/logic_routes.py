@@ -38,8 +38,10 @@ def register_logic_routes(app, db):
     def handle_query():
         try:
             client_ip = request.headers.get("X-Forwarded-For", request.remote_addr)
-            container_name = get_container_name_by_ip(client_ip)
-            network_container = find_network_container(container_name)
+            container_info = get_container_name_by_ip(client_ip)
+            container_id = container_info["id"]
+            container_name = container_info["name"]
+            network_container = find_network_container(container_id)
 
             if network_container is None:
                 raise ValueError(f"Unsupported container name for IP {client_ip}")
@@ -57,7 +59,7 @@ def register_logic_routes(app, db):
                     return jsonify({"error": "Missing query parameter"}), 400
 
             # log_ip(client_ip, sparql_query)
-            log_query(client_ip, container_name, sparql_query, db)
+            log_query(client_ip, container_name,container_id, sparql_query, db)
 
             sparql.setQuery(sparql_query)
             sparql.setReturnFormat(JSON)

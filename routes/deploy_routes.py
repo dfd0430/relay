@@ -21,11 +21,16 @@ def register_deploy_routes(app, db):
 
     @app.route("/train_selection", methods=["POST"])
     def train_selection():
-        selected_train = request.form.get("selected_train")
-        if not selected_train:
+        selected = request.form.get("selected_train")  # e.g. "abc123|my_container"
+        if not selected:
             return redirect(url_for("select_train"))
 
-        session["selected_train"] = selected_train
+        container_id, container_name = selected.split("|", 1)
+        session["selected_train"] = {
+            "id": container_id,
+            "name": container_name
+        }
+
         return redirect(url_for("train_ready"))
 
     @app.route("/train_ready")
@@ -33,7 +38,7 @@ def register_deploy_routes(app, db):
         # 1. Pull context from session
         obda_info = session.get("selected_obda", {})
         connection_info = session.get("connection_info", {})
-        dind_container = session.get("selected_train")
+        dind_container_info = session.get("selected_train")
 
         obda_id = obda_info.get("id")
         obda_is_temp = obda_info.get("is_temp", False)
@@ -42,7 +47,7 @@ def register_deploy_routes(app, db):
         db_is_temp = connection_info.get("is_temp", False)
 
         # 2. Validate session state
-        if not obda_id or not db_id or not dind_container:
+        if not obda_id or not db_id or not dind_container_info:
             print(1)
             return redirect(url_for("select_train"))
 
@@ -76,7 +81,7 @@ def register_deploy_routes(app, db):
         combinations = load_combinations()
         new_combo = {
             "network_container": ontop_name,
-            "dind_container": dind_container
+            "dind_container": dind_container_info.get("id")
         }
         if new_combo not in combinations:
             combinations.append(new_combo)

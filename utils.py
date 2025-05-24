@@ -23,7 +23,7 @@ def save_combinations(combos):
         json.dump(combos, f, indent=2)
 
 
-def log_query(ip, container_name, query,db):
+def log_query(ip, container_name,container_id, query,db):
     utc_now = datetime.utcnow()
     germany_tz = pytz.timezone('Europe/Berlin')
     germany_time = pytz.utc.localize(utc_now).astimezone(germany_tz)
