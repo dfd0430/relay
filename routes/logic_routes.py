@@ -1,4 +1,4 @@
-from flask import request, render_template, redirect, url_for, jsonify
+from flask import request, render_template, redirect, url_for, jsonify, session
 from SPARQLWrapper import SPARQLWrapper, JSON
 from datetime import datetime
 import pytz
@@ -34,6 +34,7 @@ def register_logic_routes(app, db):
 
         return redirect(url_for("index"))
 
+
     @app.route("/query", methods=["POST", "GET"])
     def handle_query():
         try:
@@ -57,13 +58,16 @@ def register_logic_routes(app, db):
                 sparql_query = request.args.get("query")
                 if not sparql_query:
                     return jsonify({"error": "Missing query parameter"}), 400
-
-            # log_ip(client_ip, sparql_query)
-            log_query(client_ip, container_name,container_id, sparql_query, db)
-
             sparql.setQuery(sparql_query)
             sparql.setReturnFormat(JSON)
             results = sparql.queryAndConvert()
+            # log_ip(client_ip, sparql_query)
+            bindings = results.get("results", {}).get("bindings", [])
+            number_of_rows_returned = len(bindings)
+
+            log_query(client_ip, container_name,container_id, sparql_query, number_of_rows_returned, db)
+
+
 
             return jsonify(results)
 

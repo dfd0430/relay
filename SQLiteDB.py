@@ -93,10 +93,11 @@ class SQLiteDB:
         columns = [
             ("id", Integer, True),  # primary key
             ("timestamp", DateTime, False),  # timestamp column
-            ("ip", String, False),  # ip column
-            ("container_name", String, False),  # container_name column
-            ("container_id", String, False),  # new container_id column (using String for IDs)
-            ("query", String, False),  # query column
+            ("ip", String, False),  # IP address
+            ("container_name", String, False),  # container name
+            ("container_id", String, False),  # container ID
+            ("query", String, False),  # SPARQL query
+            ("rows", Integer, False)  # NEW: number of rows returned
         ]
 
         table = Table(
@@ -107,16 +108,17 @@ class SQLiteDB:
         self.metadata.create_all(self.engine)
         return table
 
-    def insert_log(self, ip, container_name, container_id, query, timestamp):
+    def insert_log(self, ip, container_name, container_id, query, timestamp, rows):
         """
-        Insert a log entry into the logs table.
+        Insert a log entry into the logs table, including row count.
         """
         log_data = {
             "timestamp": timestamp,
             "ip": ip,
             "container_name": container_name,
-            "container_id": container_id,  # include container_id here
-            "query": query
+            "container_id": container_id,
+            "query": query,
+            "rows": rows  # NEW: number of rows
         }
         table = self.metadata.tables.get("logs")
         self.insert(table, [log_data])

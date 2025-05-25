@@ -84,6 +84,9 @@ def register_deploy_routes(app, db):
         if new_combo not in combinations:
             combinations.append(new_combo)
             save_combinations(combinations)
+        session.pop("selected_obda")
+        session.pop("connection_info")
+        session.pop("selected_train")
 
         session["latest_train"] = dind_container_info
         session["latest_network_name"] = ontop_name
