@@ -77,3 +77,8 @@ def register_manage_routes(app, db):
                 message = "OBDA blueprint saved successfully."
 
         return render_template("create_new_obda_manage.html", message=message, error=error,)
+
+    @app.route("/all_logs_overview")
+    def all_logs_overview():
+        containers = db.get_all_unique_containers()
+        return render_template("logs_overview.html", containers=containers)

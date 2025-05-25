@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Latest Deployed Train</title>
+    <title>Connected Train</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
 </head>
 <body>
@@ -12,25 +12,27 @@
     <table class="table table-bordered">
         <thead>
         <tr>
-            <th>Network Container</th>
-            <th>DIND Container</th>
+            <th>VKG Container</th>
+            <th>Train Container</th>
             <th>Actions</th>
             <th>Logs</th>
         </tr>
         </thead>
         <tbody>
         <tr>
-            <td>{{ train.network_container }}</td>
-            <td>{{ train.dind_container }}</td>
+            <td>{{ ontop_name }}</td>
+            <td>
+                <strong>{{ train.name }}</strong><br>
+                <small>ID: {{ train.id }}</small>
+            </td>
             <td>
                 <form action="{{ url_for('remove_combination') }}" method="POST" style="display:inline;">
-                    <input type="hidden" name="to_remove"
-                           value="{{ train.network_container }}|{{ train.dind_container }}">
+                    <input type="hidden" name="to_remove" value="{{ ontop_name }}|{{ train.id }}">
                     <button type="submit" class="btn btn-danger btn-sm">Remove</button>
                 </form>
             </td>
             <td>
-                <a href="{{ url_for('view_logs_deployment', container_name=train.dind_container) }}"
+                <a href="{{ url_for('view_logs_deployment', container_id=train.id) }}"
                    class="btn btn-info btn-sm">View Logs</a>
             </td>
         </tr>

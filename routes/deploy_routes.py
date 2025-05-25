@@ -48,7 +48,6 @@ def register_deploy_routes(app, db):
 
         # 2. Validate session state
         if not obda_id or not db_id or not dind_container_info:
-            print(1)
             return redirect(url_for("select_train"))
 
         # 3. Fetch OBDA
@@ -65,7 +64,6 @@ def register_deploy_routes(app, db):
 
         # 5. Validation
         if not obda_cfg or not db_conn:
-            print(2)
             return redirect(url_for("select_train"))
 
         # 6. Extract file content
@@ -87,21 +85,22 @@ def register_deploy_routes(app, db):
             combinations.append(new_combo)
             save_combinations(combinations)
 
-        session["latest_train"] = new_combo
-
+        session["latest_train"] = dind_container_info
+        session["latest_network_name"] = ontop_name
         return redirect(url_for("train_status"))
 
     @app.route("/train_status")
     def train_status():
-        train = session.get("latest_train")
-        if not train:
+        train_info = session.get("latest_train")
+        ontop_name = session.get("latest_network_name")
+        if not train_info:
             return "No recent deployment found.", 404
-        return render_template("train_status.html", train=train)
+        return render_template("train_status.html", train=train_info, ontop_name=ontop_name)
 
-    @app.route("/logs_deployment/<container_name>")
-    def view_logs_deployment(container_name):
+    @app.route("/logs_deployment/<container_id>")
+    def view_logs_deployment(container_id):
         try:
-            logs = db.get_logs_by_container(container_name)
-            return render_template("logs_deployment.html", container_name=container_name, logs=logs)
+            logs = db.get_logs_by_container(container_id)
+            return render_template("logs_deployment.html", container_name=container_id, logs=logs)
         except Exception as e:
             return f"Error retrieving logs: {e}", 500

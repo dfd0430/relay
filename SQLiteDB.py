@@ -90,16 +90,15 @@ class SQLiteDB:
         """
         Creates the logs table in the database with the necessary columns.
         """
-        # Make sure each column tuple contains the name, type, and whether it's a primary key
         columns = [
-            ("id", Integer, True),  # id will be the primary key
+            ("id", Integer, True),  # primary key
             ("timestamp", DateTime, False),  # timestamp column
             ("ip", String, False),  # ip column
             ("container_name", String, False),  # container_name column
+            ("container_id", String, False),  # new container_id column (using String for IDs)
             ("query", String, False),  # query column
         ]
 
-        # Create the logs table
         table = Table(
             "logs",
             self.metadata,
@@ -108,7 +107,7 @@ class SQLiteDB:
         self.metadata.create_all(self.engine)
         return table
 
-    def insert_log(self, ip, container_name, query, timestamp):
+    def insert_log(self, ip, container_name, container_id, query, timestamp):
         """
         Insert a log entry into the logs table.
         """
@@ -116,22 +115,37 @@ class SQLiteDB:
             "timestamp": timestamp,
             "ip": ip,
             "container_name": container_name,
+            "container_id": container_id,  # include container_id here
             "query": query
         }
         table = self.metadata.tables.get("logs")
         self.insert(table, [log_data])
 
-    def get_logs_by_container(self, container_name):
+    def get_logs_by_container(self, container_id):
         """
-        Retrieve logs for a specific container.
+        Retrieve logs for a specific container by container_id.
         """
         from sqlalchemy import select
         table = self.metadata.tables.get("logs")
-        stmt = select(table).where(table.c.container_name == container_name)
+        stmt = select(table).where(table.c.container_id == container_id)
         with self.engine.connect() as conn:
             result = conn.execute(stmt)
             return [dict(row._mapping) for row in result]
 
+    def get_all_unique_containers(self):
+        """
+        Returns a list of unique container_id + container_name pairs from logs.
+        """
+        from sqlalchemy import select, distinct
+        table = self.metadata.tables.get("logs")
+        stmt = select(
+            table.c.container_id,
+            table.c.container_name
+        ).distinct()
+
+        with self.engine.connect() as conn:
+            result = conn.execute(stmt)
+            return [dict(row._mapping) for row in result]
     ##################################################################################################################################################
 
     def create_db_connection_table(self):

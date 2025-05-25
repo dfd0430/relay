@@ -1,13 +1,14 @@
 from flask import Flask, session
 import os
 from SQLiteDB import SQLiteDB
+from ontop import init_directories
 
 app = Flask(__name__)
 UPLOAD_FOLDER = "/tmp/uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 os.makedirs("/volume/backup", exist_ok=True)
-
+init_directories()
 # Setup DB
 db = SQLiteDB("sqlite:////volume/backup/relay.db")
 db.create_db_connection_table()

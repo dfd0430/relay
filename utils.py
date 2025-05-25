@@ -27,4 +27,4 @@ def log_query(ip, container_name,container_id, query,db):
     utc_now = datetime.utcnow()
     germany_tz = pytz.timezone('Europe/Berlin')
     germany_time = pytz.utc.localize(utc_now).astimezone(germany_tz)
-    db.insert_log(ip, container_name, query, germany_time)
+    db.insert_log(ip, container_name, container_id, query, germany_time)
