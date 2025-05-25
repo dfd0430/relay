@@ -315,6 +315,7 @@ class SQLiteDB:
         columns = [
             ("id", Integer),
             ("name", String),
+            ("description", String),  # ← Add this line
             ("owl_file", LargeBinary),
             ("obda_file", LargeBinary),
             ("timestamp", DateTime),
@@ -323,10 +324,11 @@ class SQLiteDB:
 
 
 
-    def insert_temp_obda_configuration(self, name, owl_data, obda_data, timestamp):
+    def insert_temp_obda_configuration(self, name, description, owl_data, obda_data, timestamp):
         table = self.metadata.tables.get("temp_obda_configurations")
         data = {
             "name": name,
+            "description": description,
             "owl_file": owl_data,
             "obda_file": obda_data,
             "timestamp": timestamp,

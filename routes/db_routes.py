@@ -30,7 +30,7 @@ def register_db_routes(app, db):
                     "id": db_id,
                 }
 
-        return redirect(url_for("configure_sparql"))
+        return redirect(url_for("use_existing_obda"))
 
     @app.route("/create_new_db", methods=["GET", "POST"])
     def create_new_db():
@@ -67,7 +67,7 @@ def register_db_routes(app, db):
                     "name": name
                 }
 
-            return redirect(url_for("configure_sparql"))
+            return redirect(url_for("use_existing_obda"))
 
         return render_template("create_new_db.html")
 
