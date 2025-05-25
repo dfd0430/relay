@@ -24,6 +24,11 @@
         </div>
 
         <div class="mb-3">
+            <label for="description" class="form-label">Description</label>
+            <textarea name="description" id="description" class="form-control" rows="3" required></textarea>
+        </div>
+
+        <div class="mb-3">
             <label for="owl_file" class="form-label">Upload OWL File</label>
             <input type="file" name="owl_file" id="owl_file" class="form-control" required>
         </div>
@@ -33,12 +38,11 @@
             <input type="file" name="obda_file" id="obda_file" class="form-control" required>
         </div>
 
-        <button type="submit" class="btn btn-primary">Save Configuration</button>
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary">Save Configuration</button>
+            <a href="{{ url_for('manage_blueprints') }}" class="btn btn-secondary">Back</a>
+        </div>
     </form>
-
-    <div class="mt-4">
-    <a href="{{ url_for('manage_blueprints') }}" class="btn btn-secondary">Back</a>
-</div>
 
 </body>
 </html>

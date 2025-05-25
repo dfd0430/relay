@@ -21,6 +21,7 @@
                         <div>
                             <strong>{{ bp.name }}</strong><br />
                             <small class="text-muted">Created: {{ bp.timestamp }}</small>
+                            <p class="mb-1"><em>{{ bp.description }}</em></p>
                         </div>
                         <form method="POST" action="{{ url_for('delete_blueprint') }}">
                             <input type="hidden" name="blueprint_id" value="{{ bp.id }}" />

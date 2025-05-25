@@ -46,11 +46,12 @@ def register_obda_routes(app, db):
 
         if request.method == "POST":
             name = request.form.get("name")
+            description = request.form.get("description")  # NEW
             owl_file = request.files.get("owl_file")
             obda_file = request.files.get("obda_file")
             action = request.form.get("action")
 
-            if not owl_file or not obda_file or (action == "save_and_select" and not name):
+            if not owl_file or not obda_file or (action == "save_and_select" and (not name or not description)):
                 error = "All fields are required."
             else:
                 owl_data = owl_file.read()
@@ -58,25 +59,23 @@ def register_obda_routes(app, db):
                 timestamp = datetime.utcnow()
 
                 if action == "save_and_select":
-                    obda_id = db.insert_obda_configuration(name, owl_data, obda_data, timestamp)
+                    obda_id = db.insert_obda_configuration(name, description, owl_data, obda_data, timestamp)
                     session["selected_obda"] = {
-                    "id": obda_id,
-                    "is_temp": False,
-                    "name": name
-                }
+                        "id": obda_id,
+                        "is_temp": False,
+                        "name": name
+                    }
                 else:
-
-                    obda_id = db.insert_temp_obda_configuration(name, owl_data, obda_data, timestamp)
+                    obda_id = db.insert_temp_obda_configuration(name, description, owl_data, obda_data, timestamp)
                     session["selected_obda"] = {
                         "id": obda_id,
                         "is_temp": True,
                         "name": name
                     }
 
-
                 return redirect(url_for("select_train"))
 
-        return render_template("create_new_obda.html", message=message, error=error, db_id=db_id)
+        return render_template("create_new_obda.html", error=error, message=message, db_id=db_id)
 
     @app.route("/select_obda", methods=["POST"])
     def select_obda():

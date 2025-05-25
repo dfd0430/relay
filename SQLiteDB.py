@@ -204,20 +204,21 @@ class SQLiteDB:
         columns = [
             ("id", Integer),
             ("name", String),
+            ("description", String),  # ← Add this line
             ("owl_file", LargeBinary),
             ("obda_file", LargeBinary),
             ("timestamp", DateTime),
         ]
         self.create_table("obda_configurations", columns)
 
-
-    def insert_obda_configuration(self, name, owl_data, obda_data, timestamp):
+    def insert_obda_configuration(self, name, description, owl_data, obda_data, timestamp):
         table = self.metadata.tables.get("obda_configurations")
         if table is None:
             raise ValueError("obda_configurations table not found in metadata.")
 
         data = {
             "name": name,
+            "description": description,  # ← Add this line
             "owl_file": owl_data,
             "obda_file": obda_data,
             "timestamp": timestamp,

@@ -25,6 +25,12 @@
         </div>
 
         <div class="mb-3">
+            <label for="description" class="form-label">Description</label>
+            <textarea name="description" id="description" class="form-control" rows="3"
+              {% if request.form.get('action') == 'save_and_select' %}required{% endif %}></textarea>
+        </div>
+
+        <div class="mb-3">
             <label for="owl_file" class="form-label">Upload OWL File</label>
             <input type="file" name="owl_file" id="owl_file" class="form-control" required>
         </div>

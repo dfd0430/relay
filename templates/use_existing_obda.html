@@ -14,6 +14,7 @@
             {% for obda in blueprints %}
                 <li class="list-group-item">
                     <strong>{{ obda.name }}</strong> (Created: {{ obda.timestamp }})
+                    <p class="mb-1"><em>{{ obda.description }}</em></p>
                     <div class="mt-2 d-flex gap-2 flex-wrap">
                         <a href="{{ url_for('view_obda_file', obda_id=obda.id, file_type='owl') }}" class="btn btn-sm btn-outline-primary">View OWL</a>
                         <a href="{{ url_for('view_obda_file', obda_id=obda.id, file_type='obda') }}" class="btn btn-sm btn-outline-secondary">View OBDA</a>

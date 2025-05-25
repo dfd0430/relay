@@ -55,7 +55,6 @@ def register_manage_routes(app, db):
             db.delete_blueprint(int(blueprint_id))  # You'll implement this method below
         return redirect(url_for("manage_blueprints"))
 
-
     @app.route("/create_new_obda_manage", methods=["GET", "POST"])
     def create_new_obda_manage():
         message = None
@@ -63,20 +62,21 @@ def register_manage_routes(app, db):
 
         if request.method == "POST":
             name = request.form.get("name")
+            description = request.form.get("description")  # New field
             owl_file = request.files.get("owl_file")
             obda_file = request.files.get("obda_file")
 
-            if not name or not owl_file or not obda_file:
+            if not name or not description or not owl_file or not obda_file:
                 error = "All fields are required."
             else:
                 owl_data = owl_file.read()
                 obda_data = obda_file.read()
                 timestamp = datetime.utcnow()
 
-                db.insert_obda_configuration(name, owl_data, obda_data, timestamp)
+                db.insert_obda_configuration(name, description, owl_data, obda_data, timestamp)
                 message = "OBDA blueprint saved successfully."
 
-        return render_template("create_new_obda_manage.html", message=message, error=error,)
+        return render_template("create_new_obda_manage.html", message=message, error=error)
 
     @app.route("/all_logs_overview")
     def all_logs_overview():
