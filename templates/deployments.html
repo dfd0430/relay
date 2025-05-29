@@ -8,6 +8,7 @@
 <body>
     <div class="container mt-5">
         <h2>Deployed Containers</h2>
+
         <table class="table table-bordered">
             <thead>
                 <tr>
@@ -35,6 +36,11 @@
                 {% endfor %}
             </tbody>
         </table>
+
+        <!-- Back to Index Button -->
+        <div class="mt-4">
+            <a href="{{ url_for('index') }}" class="btn btn-secondary">← Back</a>
+        </div>
     </div>
 </body>
 </html>
