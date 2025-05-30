@@ -134,6 +134,18 @@ class SQLiteDB:
             result = conn.execute(stmt)
             return [dict(row._mapping) for row in result]
 
+    def get_container_name_by_id(self, container_id):
+        """
+        Retrieve the container name for a given container_id.
+        """
+        from sqlalchemy import select
+        table = self.metadata.tables.get("logs")
+        stmt = select(table.c.container_name).where(table.c.container_id == container_id).limit(1)
+
+        with self.engine.connect() as conn:
+            result = conn.execute(stmt).fetchone()
+            return result[0] if result else "Unknown"
+
     def get_all_unique_containers(self):
         """
         Returns a list of unique container_id + container_name pairs from logs.

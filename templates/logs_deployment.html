@@ -3,13 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Container Logs - {{ container_name }}</title>
+    <title>Container Logs - {{ container_name }} ({{ container_id }})</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
 </head>
 <body>
     <div class="container mt-5">
-        <h1>Logs for {{ container_name }}</h1>
-        <a href="{{ url_for('train_status') }}" class="btn btn-secondary">Back</a>
+        <h1>
+            Logs for <span class="text-primary">{{ container_name }}</span>
+            <small class="text-muted">({{ container_id }})</small>
+        </h1>
+
+        <a href="{{ url_for('train_status') }}" class="btn btn-secondary mt-3">Back</a>
 
         <h3 class="mt-4">Query Logs</h3>
         {% if logs %}
@@ -24,7 +28,7 @@
                 {% endfor %}
             </ul>
         {% else %}
-            <p>No logs available for this container.</p>
+            <div class="alert alert-info mt-3">No logs available for this container.</div>
         {% endif %}
     </div>
 
