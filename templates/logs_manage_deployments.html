@@ -9,7 +9,7 @@
 <body>
     <div class="container mt-5">
         <h1>Logs for {{ container_id }}</h1>
-        <a href="{{ url_for('all_logs_overview') }}" class="btn btn-secondary">Back</a>
+        <a href="{{ url_for('list_deployments') }}" class="btn btn-secondary">Back</a>
 
         <h3 class="mt-4">Query Logs</h3>
         {% if logs %}

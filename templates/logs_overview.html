@@ -15,7 +15,7 @@
                 <div>
                     <strong>{{ c.container_name }}</strong> <small class="text-muted">({{ c.container_id }})</small>
                 </div>
-                <a href="{{ url_for('view_logs_deployment', container_id=c.container_id) }}" class="btn btn-primary btn-sm">View Logs</a>
+                <a href="{{ url_for('view_logs', container_id=c.container_id) }}" class="btn btn-primary btn-sm">View Logs</a>
             </li>
         {% endfor %}
         </ul>
