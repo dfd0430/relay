@@ -7,15 +7,18 @@
 </head>
 <body class="container py-5">
 
-    <h2 class="mb-4">Select an Existing OBDA Blueprint or create new One</h2>
+    <h2 class="mb-4">Select an Existing OBDA Blueprint or Create a New One</h2>
 
     {% if blueprints %}
         <ul class="list-group">
             {% for obda in blueprints %}
-                <li class="list-group-item">
-                    <strong>{{ obda.name }}</strong> (Created: {{ obda.timestamp }})
-                    <p class="mb-1"><em>{{ obda.description }}</em></p>
-                    <div class="mt-2 d-flex gap-2 flex-wrap">
+                <li class="list-group-item d-flex justify-content-between align-items-start flex-wrap">
+                    <div class="me-auto">
+                        <strong>{{ obda.name }}</strong><br />
+                        <small class="text-muted">Created: {{ obda.timestamp }}</small>
+                        <p class="mb-1"><em>{{ obda.description }}</em></p>
+                    </div>
+                    <div class="d-flex gap-2 flex-wrap ms-auto">
                         <a href="{{ url_for('view_obda_file', obda_id=obda.id, file_type='owl') }}" class="btn btn-sm btn-outline-primary">View OWL</a>
                         <a href="{{ url_for('view_obda_file', obda_id=obda.id, file_type='obda') }}" class="btn btn-sm btn-outline-secondary">View OBDA</a>
                         <form method="POST" action="{{ url_for('select_obda') }}">
@@ -27,12 +30,12 @@
             {% endfor %}
         </ul>
     {% else %}
-        <p>No OBDA configurations available.</p>
+        <div class="alert alert-warning">No OBDA configurations available. Please create one first.</div>
     {% endif %}
 
-    <div class="mt-4">
-        <a href="{{ url_for('create_db') }}" class="btn btn-secondary">Back</a>
-        <a href="{{ url_for('create_new_obda') }}" class="btn btn-primary">Create New OBDA Config</a>
+    <div class="mt-4 d-flex gap-2 flex-wrap">
+        <a href="{{ url_for('create_new_obda') }}" class="btn btn-success">Create New OBDA Config</a>
+        <a href="{{ url_for('create_db') }}" class="btn btn-outline-secondary">Back</a>
     </div>
 
 </body>

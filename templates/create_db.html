@@ -7,33 +7,29 @@
 </head>
 <body class="container py-5">
 
-    <h3 class="mb-4">Select an Existing Database Connection or Create a new one</h3>
+    <h2 class="mb-4">Select an Existing Database Connection or Create a New One</h2>
 
     {% if connections|length == 0 %}
         <div class="alert alert-warning">No database connections found. Please create one first.</div>
     {% else %}
-        <div class="list-group">
+        <ul class="list-group">
             {% for conn in connections %}
-                <div class="list-group-item d-flex justify-content-between align-items-center">
+                <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
                     <div>
-                        <strong>{{ conn.name }}</strong> <br />
+                        <strong>{{ conn.name }}</strong><br />
                         <small class="text-muted">Created: {{ conn.timestamp }}</small>
                     </div>
                     <form method="POST" action="{{ url_for('select_db_connection') }}">
                         <input type="hidden" name="db_id" value="{{ conn.id }}" />
-                        <button type="submit" class="btn btn-primary btn-sm">Select</button>
+                        <button type="submit" class="btn btn-sm btn-primary">Select</button>
                     </form>
-                </div>
+                </li>
             {% endfor %}
-        </div>
+        </ul>
     {% endif %}
 
-    <div class="mt-4">
-        <a href="{{ url_for('create_new_db') }}" class="btn btn-secondary">Create New Database Connection</a>
-    </div>
-
-    <!-- Back to Index Button -->
-    <div class="mt-3">
+    <div class="mt-4 d-flex gap-2 flex-wrap">
+        <a href="{{ url_for('create_new_db') }}" class="btn btn-success">Create New Database Connection</a>
         <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">Back</a>
     </div>
 
