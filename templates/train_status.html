@@ -3,46 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <title>Connected Train</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
 </head>
-<body>
-<div class="container mt-5">
-    <h2>Deployed VKG Connection</h2>
+<body class="container py-5">
 
-    <table class="table table-bordered">
-        <thead>
-        <tr>
-            <th>VKG Container</th>
-            <th>Train Container</th>
-            <th>Actions</th>
-            <th>Logs</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr>
-            <td>{{ ontop_name }}</td>
-            <td>
-                <strong>{{ train.name }}</strong><br>
-                <small>ID: {{ train.id }}</small>
-            </td>
-            <td>
-                <form action="{{ url_for('remove_combination') }}" method="POST" style="display:inline;">
-                    <input type="hidden" name="to_remove" value="{{ ontop_name }}|{{ train.id }}">
-                    <button type="submit" class="btn btn-danger btn-sm">Remove</button>
-                </form>
-            </td>
-            <td>
-                <a href="{{ url_for('view_logs_deployment', container_id=train.id) }}"
-                   class="btn btn-info btn-sm">View Logs</a>
-            </td>
-        </tr>
-        </tbody>
-    </table>
+    <h2 class="mb-4">Deployed VKG Connection</h2>
 
-    <!-- Back to Index Button -->
-    <div class="mt-4">
-        <a href="{{ url_for('index') }}" class="btn btn-secondary">Back to Start</a>
+    <!-- Info Message -->
+    <div class="alert alert-success" role="alert">
+        ✅ The VKG and Train containers are now connected. You can start the Train when ready.
     </div>
-</div>
+
+    <!-- Connection Info List -->
+    <ul class="list-group">
+        <li class="list-group-item d-flex justify-content-between align-items-start flex-wrap">
+            <div class="me-auto">
+                <strong>VKG Container:</strong> {{ ontop_name }}<br />
+                <strong>Train Container:</strong> {{ train.name }}<br />
+                <small class="text-muted">ID: {{ train.id }}</small>
+            </div>
+
+            <div class="d-flex gap-2 flex-wrap ms-auto">
+                <!-- View Logs -->
+                <a href="{{ url_for('view_logs_deployment', container_id=train.id) }}" class="btn btn-sm btn-outline-info">View Logs</a>
+
+                <!-- Remove Form -->
+                <form action="{{ url_for('remove_combination') }}" method="POST">
+                    <input type="hidden" name="to_remove" value="{{ ontop_name }}|{{ train.id }}">
+                    <button type="submit" class="btn btn-sm btn-outline-danger">Remove</button>
+                </form>
+            </div>
+        </li>
+    </ul>
+
+    <!-- Navigation Buttons -->
+    <div class="mt-4 d-flex gap-2 flex-wrap">
+        <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">Back to Start</a>
+    </div>
+
 </body>
 </html>
