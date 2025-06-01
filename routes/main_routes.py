@@ -17,14 +17,14 @@ def register_main_routes(app, db):
         return render_template("home.html")
 
 
-    @app.route("/init", methods=["POST"])
-    def initialize():
-        try:
-            from docker_functions import setup_nginx
-            setup_nginx()
-            return render_template("home.html", setup_result="Setup complete!")
-        except Exception as e:
-            return render_template("home.html", setup_result=f"Setup failed: {str(e)}")
+    # @app.route("/init", methods=["POST"])
+    # def initialize():
+    #     try:
+    #         from docker_functions import setup_nginx
+    #         setup_nginx()
+    #         return render_template("home.html", setup_result="Setup complete!")
+    #     except Exception as e:
+    #         return render_template("home.html", setup_result=f"Setup failed: {str(e)}")
 
 
 

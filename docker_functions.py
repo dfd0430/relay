@@ -138,12 +138,21 @@ def find_network_container(dind_id, filename='combined_containers.json'):
 
 
 def setup_nginx():
+
     tls_config = TLSConfig(
         client_cert=(CLIENT_CERT, CLIENT_KEY),
         verify=False
     )
 
     client = docker.DockerClient(base_url=DOCKER_HOST, tls=tls_config)
+
+    # Check if nginx-proxy already exists
+    try:
+        existing_container = client.containers.get("nginx-proxy")
+        print("Warning: An NGINX proxy container already exists. Skipping setup.")
+        return False  # Or None, if you prefer
+    except docker.errors.NotFound:
+        pass  # Proceed with setup if not found
 
     # Define nginx.conf
     nginx_conf = f"""
@@ -184,7 +193,7 @@ COPY nginx.conf /etc/nginx/nginx.conf
         nginx_conf_info.size = len(nginx_conf_bytes)
         tar.addfile(nginx_conf_info, io.BytesIO(nginx_conf_bytes))
 
-    tar_stream.seek(0)  # Rewind the stream to the beginning
+    tar_stream.seek(0)
 
     try:
         # Build image from in-memory tar
@@ -196,20 +205,13 @@ COPY nginx.conf /etc/nginx/nginx.conf
             pull=True
         )
 
-        # Remove old container if it exists
-        try:
-            old_container = client.containers.get("nginx-proxy")
-            old_container.remove(force=True)
-        except docker.errors.NotFound:
-            pass
-
         # Run the nginx container
         container = client.containers.run(
             "custom-nginx-proxy",
             name="nginx-proxy",
             detach=True,
             network_mode="host",
-            auto_remove=True  # Container auto-deletes on exit
+            auto_remove=True
         )
 
         print(f"NGINX container {container.id} started successfully")
@@ -218,6 +220,7 @@ COPY nginx.conf /etc/nginx/nginx.conf
     except docker.errors.APIError as e:
         print(f"Failed to start nginx container: {str(e)}")
         raise e
+
 
 
 def stop_docker_container(container_name):
