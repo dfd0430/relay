@@ -1,5 +1,5 @@
 import socket
-
+import os
 import docker
 from docker.tls import TLSConfig
 from datetime import datetime
@@ -8,11 +8,11 @@ import io
 import tarfile
 
 IP_LOG_FILE = "ip_log.txt"
-DOCKER_HOST = "tcp://pht-dind:2376"
+
 CLIENT_CERT = "/certs/cert.pem"
 CLIENT_KEY = "/certs/key.pem"
-
-DOCKER_CLIENT = "unix://var/run/docker.sock"
+DOCKER_CLIENT = os.environ.get("DOCKER_CLIENT", "unix://var/run/docker.sock")
+DOCKER_HOST = os.environ.get("DOCKER_HOST", "tcp://pht-dind:2376")
 
 def get_current_container_name():
     # Get the container ID from hostname
