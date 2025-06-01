@@ -22,6 +22,7 @@
                     <li class="list-group-item">
                         <strong>{{ log.timestamp }}</strong>
                         <p>IP: {{ log.ip }}</p>
+                        <p><strong>DB Connection:</strong> {{ log.db_connection }}</p>
                         <p>Query: {{ log.query }}</p>
                         <p>Rows returned: {{ log.rows }}</p>
                     </li>

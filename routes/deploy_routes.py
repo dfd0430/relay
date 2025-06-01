@@ -59,8 +59,10 @@ def register_deploy_routes(app, db):
         # 4. Fetch DB connection
         if db_is_temp:
             db_conn = db.get_temp_db_connection_by_id(db_id)
+            db_name = db_conn["name"] if db_conn else None
         else:
             db_conn = db.get_db_connection_by_id(db_id)
+            db_name = db_conn["name"] if db_conn else None
 
         # 5. Validation
         if not obda_cfg or not db_conn:
@@ -89,7 +91,9 @@ def register_deploy_routes(app, db):
             db.delete_temp_db_connection(db_id)
 
         if obda_is_temp:
-            db.delete_temp_obda_configuration_by_id(obda_id)
+            db.delete_temp_obda_configuration(obda_id)
+
+        db.insert_ontop_connection(ontop_name,db_name)
 
         session.pop("selected_obda")
         session.pop("connection_info")

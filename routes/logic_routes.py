@@ -43,6 +43,7 @@ def register_logic_routes(app, db):
             container_id = container_info["id"]
             container_name = container_info["name"]
             network_container = find_network_container(container_id)
+            db_connection = db.get_connection_name_by_ontop_container(network_container)
 
             if network_container is None:
                 raise ValueError(f"Unsupported container name for IP {client_ip}")
@@ -65,7 +66,7 @@ def register_logic_routes(app, db):
             bindings = results.get("results", {}).get("bindings", [])
             number_of_rows_returned = len(bindings)
 
-            log_query(client_ip, container_name,container_id, sparql_query, number_of_rows_returned, db)
+            log_query(client_ip, container_name,container_id, db_connection, sparql_query, number_of_rows_returned, db)
 
 
 

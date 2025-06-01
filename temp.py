@@ -34,13 +34,13 @@ def save_combinations(combos):
         json.dump(combos, f, indent=2)
 
 
-def log_query(ip, container_name, query):
+def log_query(ip, container_name, db_connection, query):
     utc_now = datetime.utcnow()
     germany_tz = pytz.timezone('Europe/Berlin')
     germany_time = pytz.utc.localize(utc_now).astimezone(germany_tz)
 
     # Insert log into the database
-    db.insert_log(ip, container_name, query, germany_time)
+    db.insert_log(ip, container_name, db_connection, query, germany_time)
 
 
 
