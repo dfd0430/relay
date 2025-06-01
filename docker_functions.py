@@ -9,7 +9,7 @@ IP_LOG_FILE = "ip_log.txt"
 DOCKER_HOST = "tcp://pht-dind:2376"
 CLIENT_CERT = "/certs/cert.pem"
 CLIENT_KEY = "/certs/key.pem"
-FLASK_SERVER_ADDRESS = "137.226.58.20:8082"
+FLASK_SERVER_ADDRESS = "relay:8080"
 
 def get_container_name_by_ip(ip):
     tls_config = TLSConfig(client_cert=(CLIENT_CERT, CLIENT_KEY), verify=False)
