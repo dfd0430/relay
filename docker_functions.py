@@ -1,3 +1,5 @@
+import socket
+
 import docker
 from docker.tls import TLSConfig
 from datetime import datetime
@@ -9,7 +11,23 @@ IP_LOG_FILE = "ip_log.txt"
 DOCKER_HOST = "tcp://pht-dind:2376"
 CLIENT_CERT = "/certs/cert.pem"
 CLIENT_KEY = "/certs/key.pem"
-FLASK_SERVER_ADDRESS = "relay:8080"
+
+DOCKER_CLIENT = "unix://var/run/docker.sock"
+
+def get_current_container_name():
+    # Get the container ID from hostname
+    container_id = socket.gethostname()
+
+    # Connect to the Docker daemon (requires that the container has access to the Docker socket!)
+    client = docker.DockerClient(base_url=DOCKER_CLIENT)
+
+    try:
+        container = client.containers.get(container_id)
+        return container.name
+    except Exception as e:
+        return f"Error: {e}"
+
+FLASK_SERVER_ADDRESS = f"{get_current_container_name()}:8080"
 
 def get_container_name_by_ip(ip):
     tls_config = TLSConfig(client_cert=(CLIENT_CERT, CLIENT_KEY), verify=False)
@@ -53,7 +71,7 @@ def get_container_name_by_ip(ip):
 
 
 def list_containers_on_network(network_name):
-    client = docker.DockerClient(base_url='unix://var/run/docker.sock')
+    client = docker.DockerClient(base_url=DOCKER_CLIENT)
 
     container_list = []
 
@@ -224,7 +242,7 @@ COPY nginx.conf /etc/nginx/nginx.conf
 
 
 def stop_docker_container(container_name):
-    client = docker.DockerClient(base_url='unix://var/run/docker.sock')
+    client = docker.DockerClient(base_url=DOCKER_CLIENT)
 
     try:
         container = client.containers.get(container_name)
