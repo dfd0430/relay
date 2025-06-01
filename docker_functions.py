@@ -11,8 +11,39 @@ IP_LOG_FILE = "ip_log.txt"
 
 CLIENT_CERT = "/certs/cert.pem"
 CLIENT_KEY = "/certs/key.pem"
-DOCKER_CLIENT = os.environ.get("DOCKER_CLIENT", "unix://var/run/docker.sock")
-DOCKER_HOST = os.environ.get("DOCKER_HOST", "tcp://pht-dind:2376")
+DOCKER_CLIENT = os.environ.get("DOCKER_CLIENT", "unix://var/run/docker.sock") #the outside docker host
+DOCKER_HOST = os.environ.get("DOCKER_HOST", "tcp://pht-dind:2376") #the dind docker host
+
+def create_network_and_attach_self(network_name="relay_db_network"):
+    # Initialize Docker client
+    client = docker.DockerClient(base_url=DOCKER_CLIENT)
+
+    # 1. Create network if it doesn't exist
+    try:
+        network = client.networks.get(network_name)
+        print(f"Network '{network_name}' already exists.")
+    except docker.errors.NotFound:
+        network = client.networks.create(network_name, driver="bridge")
+        print(f"Created network '{network_name}'.")
+
+    # 2. Get the current container name
+    container_name = get_current_container_name()
+    if container_name.startswith("Error:"):
+        print(container_name)
+        return
+
+    try:
+        container = client.containers.get(container_name)
+
+        current_networks = container.attrs["NetworkSettings"]["Networks"]
+        if network_name in current_networks:
+            print(f"Container '{container_name}' already connected to '{network_name}'.")
+        else:
+            network.connect(container)
+            print(f"Connected container '{container_name}' to network '{network_name}'.")
+
+    except Exception as e:
+        print(f"Error connecting container to network: {e}")
 
 def get_current_container_name():
     # Get the container ID from hostname

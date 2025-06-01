@@ -4,7 +4,8 @@ from flask import Flask, session
 import os
 from SQLiteDB import SQLiteDB
 from ontop import init_directories
-from docker_functions import setup_nginx
+from docker_functions import setup_nginx, create_network_and_attach_self
+
 app = Flask(__name__)
 UPLOAD_FOLDER = "/tmp/uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
@@ -20,6 +21,7 @@ db.create_temp_db_connection_table()
 db.create_temp_obda_configuration_table()
 db.create_databank_table()
 app.secret_key = secrets.token_hex(32)
+create_network_and_attach_self()
 setup_nginx()
 
 # Register all routes

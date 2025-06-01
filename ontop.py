@@ -6,7 +6,7 @@ import textwrap
 import shutil
 
 from SQLiteDB import SQLiteDB
-
+DOCKER_CLIENT = os.environ.get("DOCKER_CLIENT", "unix://var/run/docker.sock") #the outside docker host
 # Host paths (bind-mounted Docker volume)
 HOST_INPUT_PATH = "/var/lib/docker/volumes/volume_python/_data/ontop_input"
 HOST_JDBC_PATH = "/var/lib/docker/volumes/volume_python/_data/ontop_jdbc"
@@ -39,7 +39,7 @@ def init_directories():
 def deploy_ontop_container(obda_data, owl_data, properties_data, jdbc_data):
     save_deployment_files(obda_data, owl_data, properties_data, jdbc_data)
 
-    client = docker.DockerClient(base_url='unix://var/run/docker.sock')
+    client = docker.DockerClient(base_url=DOCKER_CLIENT)
 
     init_directories()
     random_name = f"ontop{uuid.uuid4().hex[:8]}"
@@ -50,7 +50,7 @@ def deploy_ontop_container(obda_data, owl_data, properties_data, jdbc_data):
         detach=True,
         name =random_name,
         auto_remove=True,
-        network="database-net",
+        network="relay_db_network",
         volumes={
             HOST_INPUT_PATH: {"bind": "/opt/ontop/input", "mode": "rw"},
             HOST_JDBC_PATH: {"bind": "/opt/ontop/jdbc", "mode": "rw"},
