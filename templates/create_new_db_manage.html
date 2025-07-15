@@ -7,31 +7,16 @@
 </head>
 <body class="container py-5">
 
-    <h2 class="mb-4">Create a New OBDA Blueprint</h2>
+    <h2 class="mb-4">Create a New Database Connection</h2>
 
-    <!-- Inline messages -->
-    {% if error %}
-        <div class="alert alert-danger">{{ error }}</div>
-    {% endif %}
-    {% if message %}
-        <div class="alert alert-success">{{ message }}</div>
-    {% endif %}
 
     <form method="POST" enctype="multipart/form-data">
         <div class="mb-3">
-            <label for="name" class="form-label">Blueprint Name</label>
+            <label for="name" class="form-label">Database Connection Name</label>
             <input type="text" name="name" id="name" class="form-control" required>
         </div>
 
-        <div class="mb-3">
-            <label for="owl_file" class="form-label">Upload OWL File</label>
-            <input type="file" name="owl_file" id="owl_file" class="form-control" accept=".owl" required>
-        </div>
 
-        <div class="mb-3">
-            <label for="obda_file" class="form-label">Upload OBDA File</label>
-            <input type="file" name="obda_file" id="obda_file" class="form-control" accept=".obda" required>
-        </div>
 
         <div class="mb-3">
             <label for="properties_file" class="form-label">Upload Properties File</label>
@@ -43,11 +28,11 @@
             <input type="file" name="jdbc_file" id="jdbc_file" class="form-control" accept=".jar,.zip" required>
         </div>
 
-        <button type="submit" class="btn btn-primary">Save Blueprint</button>
+        <button type="submit" class="btn btn-primary">Save Database Connection</button>
     </form>
 
     <div class="mt-4">
-        <a href="{{ url_for('manage_blueprints') }}" class="btn btn-outline-primary">Back</a>
+        <a href="{{ url_for('manage_db_connections') }}" class="btn btn-outline-primary">Back</a>
     </div>
 
 </body>

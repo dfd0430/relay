@@ -113,12 +113,19 @@ def register_deploy_routes(app, db):
             return "No recent deployment found.", 404
         return render_template("train_status.html", train=train_info, ontop_name=ontop_name)
 
-    @app.route("/logs_deployment/<container_id>")
-    def view_logs_deployment(container_id):
-        try:
-            logs = db.get_logs_by_container(container_id)
-            container_name = db.get_container_name_by_id(container_id)  # <- Use your actual method to fetch name
-            return render_template("logs_deployment.html", container_id=container_id, container_name=container_name,
-                                   logs=logs)
-        except Exception as e:
-            return f"Error retrieving logs: {e}", 500
+    @app.route("/view_ontop_logs/<string:ontop_name>")
+    def view_ontop_logs(ontop_name):
+        """
+        Renders a page displaying the logs for a specific Docker container by Name.
+        This is intended for the 'Ontop' (VKG) container.
+        """
+        container_logs, log_status_message, container_name = get_container_logs_by_name(ontop_name)
+
+        # Use the same template as view_logs_deployment for consistency in display
+        return render_template(
+            "view_ontop_logs.html",  # Reusing the same log display template
+            container_id="N/A (by name)",  # Indicate it was fetched by name, ID might not be directly available in URL
+            container_name=container_name,
+            container_logs=container_logs,
+            log_status_message=log_status_message
+        )

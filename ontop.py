@@ -49,7 +49,6 @@ def deploy_ontop_container(obda_data, owl_data, properties_data, jdbc_data):
         image="ontop/ontop",
         detach=True,
         name =random_name,
-        auto_remove=True,
         network="relay_db_network",
         volumes={
             HOST_INPUT_PATH: {"bind": "/opt/ontop/input", "mode": "rw"},

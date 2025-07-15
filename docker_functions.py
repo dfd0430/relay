@@ -134,7 +134,7 @@ def list_dind_containers():
 
     try:
         docker_client = docker.DockerClient(base_url=DOCKER_HOST, tls=tls_config)
-        containers = docker_client.containers.list()
+        containers = docker_client.containers.list(all=True)
 
         container_list = []
 
@@ -153,10 +153,10 @@ def list_dind_containers():
             container_list.append(container_info)
 
             # Optional logging
-            with open(IP_LOG_FILE, "a") as log_file:
-                log_file.write(
-                    f"{datetime.now()} - Container: {container.name}, Networks: {container_info['networks']}\n"
-                )
+            # with open(IP_LOG_FILE, "a") as log_file:
+            #     log_file.write(
+            #         f"{datetime.now()} - Container: {container.name}, Networks: {container_info['networks']}\n"
+            #     )
 
         # Return list of dicts with id and name
         return [{"id": c["id"], "name": c["name"]} for c in container_list]
@@ -285,3 +285,42 @@ def stop_docker_container(container_name):
         print(f"Error stopping container '{container_name}': {e}")
 
 
+def get_container_logs_by_name(container_name_to_fetch):
+    """
+    Fetches logs for a given Docker container name from the DIND host.
+
+    Args:
+        container_name_to_fetch (str): The name of the Docker container.
+
+    Returns:
+        tuple: A tuple containing:
+            - container_logs (str): The fetched logs or an error message.
+            - log_status_message (str): A status message about the log fetching process.
+            - container_name (str): The name of the container or "Unknown".
+    """
+    container_logs = "No logs available."  # Default message
+    log_status_message = ""  # Message about container status
+    container_name = container_name_to_fetch # Assume name is correct initially
+
+    if container_name_to_fetch:
+        try:
+            client = docker.DockerClient(base_url=DOCKER_HOST)
+
+            # Get the container object by name
+            container = client.containers.get(container_name_to_fetch)
+            # Ensure we use the actual name from the container object if it differs
+            container_name = container.name
+
+            container_logs = container.logs(tail='all', stream=False, follow=False).decode('utf-8')
+            log_status_message = f"Logs for container '{container_name}' (Name: {container_name_to_fetch}):"
+
+        except docker.errors.NotFound:
+            container_logs = f"Container '{container_name_to_fetch}' not found. It might have crashed and been removed."
+            log_status_message = "Container status: Not Found (likely removed)."
+        except Exception as e:
+            container_logs = f"Error fetching logs for '{container_name_to_fetch}': {e}"
+            log_status_message = "Container status: Error."
+    else:
+        log_status_message = "Container name not provided."
+
+    return container_logs, log_status_message, container_name

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Container Logs</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* Align to top for better content flow */
+            min-height: 100vh;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 900px; /* Slightly wider for logs */
+            text-align: center;
+        }
+        h1 {
+            color: #1a202c;
+            font-size: 2.25rem; /* text-4xl */
+            font-weight: 700; /* font-bold */
+            margin-bottom: 20px;
+        }
+        .info-card {
+            background-color: #edf2f7; /* gray-100 */
+            border-radius: 8px;
+            padding: 15px 20px;
+            margin-bottom: 15px;
+            text-align: left;
+            border: 1px solid #e2e8f0; /* gray-200 */
+        }
+        .info-card strong {
+            color: #2d3748; /* gray-800 */
+        }
+        .log-section {
+            background-color: #1a202c; /* gray-900 */
+            color: #e2e8f0; /* gray-200 */
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 25px;
+            text-align: left;
+            overflow-x: auto; /* Allow horizontal scrolling for long lines */
+            max-height: 600px; /* Increased height for logs */
+            overflow-y: auto; /* Enable vertical scrolling for logs */
+            white-space: pre-wrap; /* Preserve whitespace and wrap long lines */
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+            font-size: 0.875rem; /* text-sm */
+            line-height: 1.4;
+            border: 1px solid #4a5568; /* gray-700 */
+        }
+        .log-status {
+            font-size: 0.95rem;
+            color: #4a5568; /* gray-700 */
+            margin-bottom: 10px;
+            text-align: left;
+            font-weight: 600;
+        }
+        .button-back {
+            display: inline-block;
+            margin-top: 25px;
+            padding: 10px 25px;
+            background-color: #4299e1; /* blue-500 */
+            color: white;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 10px rgba(66, 153, 225, 0.3);
+        }
+        .button-back:hover {
+            background-color: #3182ce; /* blue-600 */
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Container Logs</h1>
+
+        <div class="info-card">
+            <p><strong>Container Name:</strong> {{ container_name }}</p>
+            <p><strong>Container ID:</strong> {{ container_id }}</p>
+        </div>
+
+        <div class="log-status">
+            <p>{{ log_status_message }}</p>
+        </div>
+
+        <div class="log-section">
+            <pre>{{ container_logs }}</pre>
+        </div>
+
+        <!-- Go back to the train status page -->
+        <a href="{{ url_for('train_status') }}" class="button-back">Back to Train Status</a>
+    </div>
+</body>
+</html>
