@@ -23,7 +23,7 @@
             border-radius: 12px;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
             width: 100%;
-            max-width: 1200px; /* Changed from 900px to 1200px */
+            max-width: 1200px;
             text-align: center;
         }
         h1 {
@@ -59,21 +59,24 @@
             line-height: 1.4;
             border: 1px solid #4a5568;
         }
+        /* Existing .button-back style for consistency, adjusted for Tailwind-like appearance */
         .button-back {
             display: inline-block;
             margin-top: 25px;
             padding: 10px 25px;
-            background-color: #4299e1;
-            color: white;
+            /* Tailwind equivalent for outline-primary */
+            border: 2px solid #3b82f6; /* Blue border */
+            color: #3b82f6; /* Blue text */
+            background-color: transparent; /* Transparent background */
             border-radius: 8px;
             text-decoration: none;
             font-weight: 600;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-            box-shadow: 0 4px 10px rgba(66, 153, 225, 0.3);
+            transition: background-color 0.3s ease, color 0.3s ease; /* Removed transform from transition */
         }
         .button-back:hover {
-            background-color: #3182ce;
-            transform: translateY(-2px);
+            background-color: #3b82f6; /* Blue background on hover */
+            color: white; /* White text on hover */
+            /* Removed transform: translateY(-2px) and box-shadow */
         }
     </style>
 </head>
@@ -89,6 +92,7 @@
             <pre>{{ container_logs }}</pre>
         </div>
 
+        <!-- Changed class to button-back to use the custom Tailwind-like styling -->
         <a href="{{ url_for('train_status') }}" class="button-back">Back to Train Status</a>
     </div>
 </body>
