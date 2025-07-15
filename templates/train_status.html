@@ -25,7 +25,7 @@
 
             <div class="d-flex gap-2 flex-wrap ms-auto">
                 <!-- View Logs -->
-                <a href="{{ url_for('view_logs', container_id=train.id) }}" class="btn btn-sm btn-outline-info">View Logs</a>
+                <a href="{{ url_for('view_logs_deployment', container_id=train.id) }}" class="btn btn-sm btn-outline-info">View Logs</a>
                  <a href="{{ url_for('view_ontop_logs', ontop_name=ontop_name) }}" class="btn btn-sm btn-outline-primary">View Ontop Logs</a>
                 <!-- Remove Form -->
                 <form action="{{ url_for('remove_combination') }}" method="POST">

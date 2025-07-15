@@ -113,6 +113,16 @@ def register_deploy_routes(app, db):
             return "No recent deployment found.", 404
         return render_template("train_status.html", train=train_info, ontop_name=ontop_name)
 
+    @app.route("/logs_deployment/<container_id>")
+    def view_logs_deployment(container_id):
+        try:
+            logs = db.get_logs_by_container(container_id)
+            container_name = db.get_container_name_by_id(container_id)  # <- Use your actual method to fetch name
+            return render_template("logs_deployment.html", container_id=container_id, container_name=container_name,
+                                   logs=logs)
+        except Exception as e:
+            return f"Error retrieving logs: {e}", 500
+
     @app.route("/view_ontop_logs/<string:ontop_name>")
     def view_ontop_logs(ontop_name):
         """

@@ -286,25 +286,13 @@ def stop_docker_container(container_name):
 
 
 def get_container_logs_by_name(container_name_to_fetch):
-    """
-    Fetches logs for a given Docker container name from the DIND host.
-
-    Args:
-        container_name_to_fetch (str): The name of the Docker container.
-
-    Returns:
-        tuple: A tuple containing:
-            - container_logs (str): The fetched logs or an error message.
-            - log_status_message (str): A status message about the log fetching process.
-            - container_name (str): The name of the container or "Unknown".
-    """
     container_logs = "No logs available."  # Default message
     log_status_message = ""  # Message about container status
     container_name = container_name_to_fetch # Assume name is correct initially
 
     if container_name_to_fetch:
         try:
-            client = docker.DockerClient(base_url=DOCKER_HOST)
+            client = docker.DockerClient(base_url=DOCKER_CLIENT)
 
             # Get the container object by name
             container = client.containers.get(container_name_to_fetch)
