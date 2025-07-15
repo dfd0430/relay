@@ -139,3 +139,20 @@ def register_deploy_routes(app, db):
             container_logs=container_logs,
             log_status_message=log_status_message
         )
+
+    @app.route("/check_vkg_connection_status/<string:ontop_name>")
+    def check_vkg_connection_status(ontop_name):
+        logs, status_message, _ = get_container_logs_by_name(ontop_name)
+
+        # Define the success and error keywords
+        success_keyword = "Started OntopEndpointApplication"  # Example keyword for success
+        error_keyword = "ERROR"  # Example keyword for general errors
+
+        if success_keyword in logs:
+            return jsonify({"status": "connected",
+                            "message": "✅ The VKG and Train containers are now connected. You can start the Train when ready."})
+        elif error_keyword in logs:
+            return jsonify(
+                {"status": "error", "message": "❌ An error occurred starting up the Ontop container"})
+        else:
+            return jsonify({"status": "connecting", "message": "⏳ Connecting VKG container..."})

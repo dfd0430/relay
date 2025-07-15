@@ -9,12 +9,10 @@
 
     <h2 class="mb-4">Deployed VKG Connection</h2>
 
-    <!-- Info Message -->
-    <div class="alert alert-success" role="alert">
-        ✅ The VKG and Train containers are now connected. You can start the Train when ready.
+    <div id="vkg-status-alert" class="alert alert-info" role="alert">
+        ⏳ Connecting VKG container...
     </div>
 
-    <!-- Connection Info List -->
     <ul class="list-group">
         <li class="list-group-item d-flex justify-content-between align-items-start flex-wrap">
             <div class="me-auto">
@@ -24,10 +22,7 @@
             </div>
 
             <div class="d-flex gap-2 flex-wrap ms-auto">
-                <!-- View Logs -->
                 <a href="{{ url_for('view_logs_deployment', container_id=train.id) }}" class="btn btn-sm btn-outline-info">View Logs</a>
-                 <a href="{{ url_for('view_ontop_logs', ontop_name=ontop_name) }}" class="btn btn-sm btn-outline-primary">View Ontop Logs</a>
-                <!-- Remove Form -->
                 <form action="{{ url_for('remove_combination') }}" method="POST">
                     <input type="hidden" name="to_remove" value="{{ ontop_name }}|{{ train.id }}">
                     <button type="submit" class="btn btn-sm btn-outline-danger">Remove</button>
@@ -36,10 +31,52 @@
         </li>
     </ul>
 
-    <!-- Navigation Buttons -->
     <div class="mt-4 d-flex gap-2 flex-wrap">
         <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">Back to Start</a>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const vkgStatusAlert = document.getElementById('vkg-status-alert');
+            const ontopName = "{{ ontop_name }}"; // Get ontop_name from Flask context
+
+            function checkVkgStatus() {
+                fetch(`/check_vkg_connection_status/${ontopName}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        vkgStatusAlert.className = 'alert'; // Reset classes
+                        let alertMessage = data.message;
+
+                        if (data.status === 'connected') {
+                            vkgStatusAlert.classList.add('alert-success');
+                            clearInterval(statusInterval); // Stop polling on success
+                        } else if (data.status === 'error') {
+                            vkgStatusAlert.classList.add('alert-danger');
+                            // Append the button HTML directly to the alert message
+                            alertMessage += `<br><a href="{{ url_for('view_ontop_logs', ontop_name=ontop_name) }}" class="btn btn-sm btn-primary mt-2">View Ontop Logs</a>`;
+                            clearInterval(statusInterval); // Stop polling on error
+                        } else {
+                            vkgStatusAlert.classList.add('alert-info');
+                        }
+                        vkgStatusAlert.innerHTML = alertMessage; // Set innerHTML to include potentially the button
+
+                    })
+                    .catch(error => {
+                        console.error('Error fetching VKG status:', error);
+                        vkgStatusAlert.className = 'alert alert-danger';
+                        // Provide a generic error message and show the button
+                        vkgStatusAlert.innerHTML = `Error checking VKG status.<br><a href="{{ url_for('view_ontop_logs', ontop_name=ontop_name) }}" class="btn btn-sm btn-primary mt-2">View Ontop Logs</a>`;
+                        clearInterval(statusInterval); // Stop polling on fetch error
+                    });
+            }
+
+            // Poll every 3 seconds (adjust as needed)
+            const statusInterval = setInterval(checkVkgStatus, 3000);
+
+            // Initial check when the page loads
+            checkVkgStatus();
+        });
+    </script>
 
 </body>
 </html>
