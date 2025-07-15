@@ -312,3 +312,33 @@ def get_container_logs_by_name(container_name_to_fetch):
         log_status_message = "Container name not provided."
 
     return container_logs, log_status_message, container_name
+
+def remove_exited_container_by_name(container_name):
+    try:
+
+        client = docker.DockerClient(base_url=DOCKER_CLIENT)
+
+        try:
+            container = client.containers.get(container_name)
+        except docker.errors.NotFound:
+            print(f"Container '{container_name}' not found. No action needed.")
+            return True
+
+        container_status = container.status
+        print(f"Container '{container_name}' status: {container_status}")
+
+        if container_status == "exited":
+            print(f"Container '{container_name}' is exited. Attempting to remove...")
+            container.remove()
+            print(f"Successfully removed exited container: {container_name}")
+            return True
+        else:
+            print(f"Container '{container_name}' is not exited (current status: {container_status}). Not removed.")
+            return True
+
+    except docker.errors.APIError as e:
+        print(f"Docker API Error for container '{container_name}': {e}")
+        return False
+    except Exception as e:
+        print(f"An unexpected error occurred while checking/removing container '{container_name}': {e}")
+        return False

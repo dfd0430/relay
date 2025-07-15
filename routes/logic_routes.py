@@ -16,16 +16,13 @@ def register_logic_routes(app, db):
         combinations = load_combinations()
 
         if to_remove:
-            # We expect format: "network_name|dind_name"
+
             net_name, dind_name = to_remove.split("|")
 
             # Stop the network container
             stop_docker_container(net_name)
+            remove_exited_container_by_name(net_name)
 
-            # Optionally stop dind container too
-            # stop_docker_container(dind_name)
-
-            # Remove from combinations
             combinations = [
                 c for c in combinations
                 if not (c["network_container"] == net_name and c["dind_container"] == dind_name)
