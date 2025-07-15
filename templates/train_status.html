@@ -13,6 +13,9 @@
         ⏳ Connecting VKG container...
     </div>
 
+    <div id="vkg-query-status-container" class="mt-3">
+        </div>
+
     <ul class="list-group">
         <li class="list-group-item d-flex justify-content-between align-items-start flex-wrap">
             <div class="me-auto">
@@ -38,6 +41,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const vkgStatusAlert = document.getElementById('vkg-status-alert');
+            const vkgQueryStatusContainer = document.getElementById('vkg-query-status-container'); // Get the new container
             const ontopName = "{{ ontop_name }}"; // Get ontop_name from Flask context
 
             function checkVkgStatus() {
@@ -49,12 +53,12 @@
 
                         if (data.status === 'connected') {
                             vkgStatusAlert.classList.add('alert-success');
-                            clearInterval(statusInterval); // Stop polling on success
+                            clearInterval(vkgStatusInterval); // Stop polling on success
                         } else if (data.status === 'error') {
                             vkgStatusAlert.classList.add('alert-danger');
                             // Append the button HTML directly to the alert message
                             alertMessage += `<br><a href="{{ url_for('view_ontop_logs', ontop_name=ontop_name) }}" class="btn btn-sm btn-primary mt-2">View Ontop Logs</a>`;
-                            clearInterval(statusInterval); // Stop polling on error
+                            clearInterval(vkgStatusInterval); // Stop polling on error
                         } else {
                             vkgStatusAlert.classList.add('alert-info');
                         }
@@ -62,19 +66,51 @@
 
                     })
                     .catch(error => {
-                        console.error('Error fetching VKG status:', error);
+                        console.error('Error fetching VKG connection status:', error);
                         vkgStatusAlert.className = 'alert alert-danger';
                         // Provide a generic error message and show the button
-                        vkgStatusAlert.innerHTML = `Error checking VKG status.<br><a href="{{ url_for('view_ontop_logs', ontop_name=ontop_name) }}" class="btn btn-sm btn-primary mt-2">View Ontop Logs</a>`;
-                        clearInterval(statusInterval); // Stop polling on fetch error
+                        vkgStatusAlert.innerHTML = `Error checking VKG connection status.<br><a href="{{ url_for('view_ontop_logs', ontop_name=ontop_name) }}" class="btn btn-sm btn-primary mt-2">View Ontop Logs</a>`;
+                        clearInterval(vkgStatusInterval); // Stop polling on fetch error
                     });
             }
 
-            // Poll every 3 seconds (adjust as needed)
-            const statusInterval = setInterval(checkVkgStatus, 3000);
+            // New function to check VKG Query status
+            function checkVkgQueryStatus() {
+                fetch(`/check_vkg_query/${ontopName}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        // Clear previous alerts from the container
+                        vkgQueryStatusContainer.innerHTML = '';
 
-            // Initial check when the page loads
+                        if (data.status === 'error') {
+                            const errorAlert = document.createElement('div');
+                            errorAlert.className = 'alert alert-danger';
+                            let alertMessage = data.message;
+                            alertMessage += `<br><a href="{{ url_for('view_ontop_logs', ontop_name=ontop_name) }}" class="btn btn-sm btn-primary mt-2">View Ontop Logs</a>`;
+                            errorAlert.innerHTML = alertMessage;
+                            vkgQueryStatusContainer.appendChild(errorAlert);
+                        }
+                        // If data.status is 'running' (no error), nothing is appended, so no alert is shown.
+                    })
+                    .catch(error => {
+                        console.error('Error fetching VKG query status:', error);
+                        vkgQueryStatusContainer.innerHTML = ''; // Clear existing alerts
+                        const errorAlert = document.createElement('div');
+                        errorAlert.className = 'alert alert-danger';
+                        errorAlert.innerHTML = `Error checking VKG query status.<br><a href="{{ url_for('view_ontop_logs', ontop_name=ontop_name) }}" class="btn btn-sm btn-primary mt-2">View Ontop Logs</a>`;
+                        vkgQueryStatusContainer.appendChild(errorAlert);
+                    });
+            }
+
+            // Poll every 3 seconds (adjust as needed) for VKG Connection
+            const vkgStatusInterval = setInterval(checkVkgStatus, 3000);
+            // Poll every 3 seconds (adjust as needed) for VKG Query
+            const vkgQueryStatusInterval = setInterval(checkVkgQueryStatus, 3000);
+
+
+            // Initial checks when the page loads
             checkVkgStatus();
+            checkVkgQueryStatus();
         });
     </script>
 

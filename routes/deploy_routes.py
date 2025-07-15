@@ -156,3 +156,19 @@ def register_deploy_routes(app, db):
                 {"status": "error", "message": "❌ An error occurred starting up the Ontop container"})
         else:
             return jsonify({"status": "connecting", "message": "⏳ Connecting VKG container..."})
+
+    @app.route("/check_vkg_query/<string:ontop_name>")
+    def check_vkg_query(ontop_name):
+        logs, status_message, _ = get_container_logs_by_name(ontop_name)
+
+        # Define the error keyword
+        error_keyword = "Exception"  # Keyword to check for errors
+
+        if error_keyword in logs:
+            return jsonify(
+                {"status": "error",
+                 "message": f"❌ An Exception occurred in Ontop container '{ontop_name}'."})
+        else:
+            # IMPORTANT: Return a non-error status when no exception is found.
+            # The message here doesn't matter much since the JS won't display it.
+            return jsonify({"status": "no_error", "message": "No exceptions found."})
