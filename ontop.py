@@ -17,7 +17,7 @@ JDBC_JAR_SOURCE = "./jdbc/driver.jar"
 JDBC_JAR_DEST = os.path.join(JDBC_PATH, "driver.jar")
 
 def save_deployment_files(obda_data, owl_data, properties_data, jdbc_data):
-    with open("/volume/ontop_input/mappings.obda", "wb") as f:
+    with open("/volume/ontop_input/mappings.ttl", "wb") as f:
         f.write(obda_data)
     with open("/volume/ontop_input/ontologie.owl", "wb") as f:
         f.write(owl_data)
@@ -55,7 +55,7 @@ def deploy_ontop_container(obda_data, owl_data, properties_data, jdbc_data):
             HOST_JDBC_PATH: {"bind": "/opt/ontop/jdbc", "mode": "rw"},
         },
         environment={
-            "ONTOP_MAPPING_FILE": "/opt/ontop/input/mappings.obda",
+            "ONTOP_MAPPING_FILE": "/opt/ontop/input/mappings.ttl",
             "ONTOP_ONTOLOGY_FILE": "/opt/ontop/input/ontologie.owl",
             "ONTOP_PROPERTIES_FILE": "/opt/ontop/input/database.properties",
         },

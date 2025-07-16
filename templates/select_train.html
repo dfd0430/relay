@@ -16,7 +16,7 @@
                     <span><strong>{{ container.name }}</strong> ({{ container.id }})</span>
                     <form method="POST" action="{{ url_for('train_selection') }}">
                         <input type="hidden" name="selected_train" value="{{ container.id }}|{{ container.name }}">
-                        <button type="submit" class="btn btn-success btn-sm">Deploy</button>
+                        <button type="submit" class="btn btn-sm btn-primary">Deploy</button>
                     </form>
                 </li>
             {% endfor %}
