@@ -83,6 +83,9 @@ def register_deploy_routes(app, db):
             "network_container": ontop_name,
             "dind_container": dind_container_info.get("id")
         }
+
+        combinations = [c for c in combinations if c["dind_container"] != new_combo["dind_container"]]
+
         if new_combo not in combinations:
             combinations.append(new_combo)
             save_combinations(combinations)

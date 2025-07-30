@@ -29,6 +29,26 @@ def register_logic_routes(app, db):
             ]
             save_combinations(combinations)
 
+        return redirect(request.referrer or url_for("index"))
+
+    @app.route("/remove_deploy", methods=["POST"])
+    def remove_deploy():
+        to_remove = request.form.get("to_remove")
+        combinations = load_combinations()
+
+        if to_remove:
+            net_name, dind_name = to_remove.split("|")
+
+            # Stop the network container
+            stop_docker_container(net_name)
+            remove_exited_container_by_name(net_name)
+
+            combinations = [
+                c for c in combinations
+                if not (c["network_container"] == net_name and c["dind_container"] == dind_name)
+            ]
+            save_combinations(combinations)
+
         return redirect(url_for("index"))
 
 

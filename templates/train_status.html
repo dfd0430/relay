@@ -26,7 +26,7 @@
 
             <div class="d-flex gap-2 flex-wrap ms-auto">
                 <a href="{{ url_for('view_logs_deployment', container_id=train.id) }}" class="btn btn-sm btn-outline-info">View Logs</a>
-                <form action="{{ url_for('remove_combination') }}" method="POST">
+                <form action="{{ url_for('remove_deploy') }}" method="POST">
                     <input type="hidden" name="to_remove" value="{{ ontop_name }}|{{ train.id }}">
                     <button type="submit" class="btn btn-sm btn-outline-danger">Remove</button>
                 </form>

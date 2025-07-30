@@ -18,7 +18,7 @@
         <h3 class="mt-4">Query Logs</h3>
         {% if logs %}
             <ul class="list-group">
-                {% for log in logs %}
+                {% for log in logs|reverse %}
                     <li class="list-group-item">
                         <strong>{{ log.timestamp }}</strong>
                         <p>IP: {{ log.ip }}</p>
