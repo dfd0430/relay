@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Column, Integer, String, LargeBinary, Table, MetaData, DateTime
+from sqlalchemy import create_engine, Column, Integer, String, LargeBinary, Table, MetaData, DateTime,select
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import insert
 
@@ -31,7 +31,7 @@ class SQLiteDB:
         """
         Select all rows from a specific table.
         """
-        from sqlalchemy import select
+
         stmt = select(table)
         with self.engine.connect() as conn:
             result = conn.execute(stmt)
@@ -80,7 +80,6 @@ class SQLiteDB:
         """
         Retrieve logs for a specific container by container_id.
         """
-        from sqlalchemy import select
         table = self.metadata.tables.get("logs")
         stmt = select(table).where(table.c.container_id == container_id)
         with self.engine.connect() as conn:
@@ -91,7 +90,6 @@ class SQLiteDB:
         """
         Retrieve the container name for a given container_id.
         """
-        from sqlalchemy import select
         table = self.metadata.tables.get("logs")
         stmt = select(table.c.container_name).where(table.c.container_id == container_id).limit(1)
 

@@ -17,7 +17,7 @@ def register_random_routes(app, db):
         # Enrich each combo with container name using the DB helper
         for combo in combinations:
             dind_id = combo["dind_container"]
-            name = db.get_container_name_by_id(dind_id)
+            name = get_container_name_by_id_through_docker(dind_id)
             combo["dind_container_name"] = name or "Unknown"  # fallback if not found
 
         return render_template("deployments.html", combined_containers=combinations)

@@ -1,3 +1,4 @@
+import html
 
 from flask import request, render_template, redirect, url_for, jsonify
 from SPARQLWrapper import SPARQLWrapper, JSON
@@ -36,7 +37,10 @@ def register_obda_routes(app, db):
         except UnicodeDecodeError:
             decoded = "[Binary content — not displayable as text]"
 
-        return f"<h3>{file_type.upper()} File for {config['name']}</h3><pre>{decoded}</pre>"
+        # Escape special HTML characters
+        escaped = html.escape(decoded)
+
+        return f"<h3>{file_type.upper()} File for {config['name']}</h3><pre>{escaped}</pre>"
 
     @app.route("/create_new_obda", methods=["GET", "POST"])
     def create_new_obda():

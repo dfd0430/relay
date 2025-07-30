@@ -100,7 +100,6 @@ def get_container_name_by_ip(ip):
 
     return {"name": "Unknown", "id": "Unknown"}
 
-
 def list_containers_on_network(network_name):
     client = docker.DockerClient(base_url=DOCKER_CLIENT)
 
@@ -172,6 +171,21 @@ def list_dind_containers():
             log_file.write(f"{datetime.now()} - {error_message}\n")
         return {"error": error_message}
 
+def get_container_name_by_id_through_docker(container_id):
+    tls_config = TLSConfig(client_cert=(CLIENT_CERT, CLIENT_KEY), verify=False)
+
+    try:
+        docker_client = docker.DockerClient(base_url=DOCKER_HOST, tls=tls_config)
+        containers = docker_client.containers.list(all=True)
+
+        for container in containers:
+            if container.short_id == container_id or container.id.startswith(container_id):
+                return container.name
+
+        return "unknown"
+
+    except Exception:
+        return "unknown"
 
 def find_network_container(dind_id, filename='combined_containers.json'):
     with open(filename, 'r') as file:
