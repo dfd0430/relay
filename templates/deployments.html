@@ -12,8 +12,9 @@
         <table class="table table-bordered">
             <thead>
                 <tr>
-                    <th>Network Container</th>
+                    <th>VKG Container</th>
                     <th>DIND Container</th>
+                    <th>Used OBDA Configuration</th>
                     <th>Actions</th>
                     <th>Logs</th>
                 </tr>
@@ -24,6 +25,7 @@
                     <td>{{ combo.network_container }}</td>
                     <td><div><strong>{{ combo.dind_container_name }}</strong></div>
             <div class="text-muted small">ID: {{ combo.dind_container }}</div></td>
+                         <td>{{ combo.ontop_name }}</td>
                     <td>
                         <form action="{{ url_for('remove_combination') }}" method="POST" style="display:inline;">
                             <input type="hidden" name="to_remove" value="{{ combo.network_container }}|{{ combo.dind_container }}">

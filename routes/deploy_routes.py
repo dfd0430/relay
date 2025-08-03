@@ -95,8 +95,8 @@ def register_deploy_routes(app, db):
 
         if obda_is_temp:
             db.delete_temp_obda_configuration(obda_id)
-
-        db.insert_ontop_connection(ontop_name,db_name)
+        obda_name = obda_info.get("name")
+        db.insert_ontop_connection(ontop_name,db_name,obda_name)
 
         session.pop("selected_obda")
         session.pop("connection_info")
@@ -112,9 +112,10 @@ def register_deploy_routes(app, db):
     def train_status():
         train_info = session.get("latest_train")
         ontop_name = session.get("latest_network_name")
+        obda_name = db.get_selected_obda(ontop_name)
         if not train_info:
             return "No recent deployment found.", 404
-        return render_template("train_status.html", train=train_info, ontop_name=ontop_name)
+        return render_template("train_status.html", train=train_info, ontop_name=ontop_name, obda_name=obda_name)
 
     @app.route("/logs_deployment/<container_id>")
     def view_logs_deployment(container_id):

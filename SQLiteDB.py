@@ -72,6 +72,7 @@ class SQLiteDB:
             "db_connection": db_connection,
             "query": query,
             "rows": rows  # NEW: number of rows
+
         }
         table = self.metadata.tables.get("logs")
         self.insert(table, [log_data])
@@ -329,18 +330,31 @@ class SQLiteDB:
         columns = [
             ("id", Integer),  # Primary Key
             ("ontop_container", String),
-            ("connection_name", String)
+            ("connection_name", String),
+            ("selected_obda", String),
         ]
         self.create_table("databank", columns)
 
-    def insert_ontop_connection(self, ontop_container, connection_name):
+    def get_selected_obda(self, ontop_name):
+        table = self.metadata.tables.get("databank")
+        stmt = select(table.c.selected_obda).where(table.c.ontop_container == ontop_name)
+
+        with self.engine.begin() as conn:
+            result = conn.execute(stmt).fetchone()
+
+        if result:
+            return result[0]  # This is already a string
+        return None
+
+    def insert_ontop_connection(self, ontop_container, connection_name,selected_obda):
         """
         Inserts a new record into the databank table.
         """
         table = self.metadata.tables.get("databank")
         data = {
             "ontop_container": ontop_container,
-            "connection_name": connection_name
+            "connection_name": connection_name,
+            "selected_obda": selected_obda
         }
 
         stmt = insert(table).returning(table.c.id)

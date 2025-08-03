@@ -19,7 +19,8 @@ def register_random_routes(app, db):
             dind_id = combo["dind_container"]
             name = get_container_name_by_id_through_docker(dind_id)
             combo["dind_container_name"] = name or "Unknown"  # fallback if not found
-
+            ontop_name = db.get_selected_obda(combo["network_container"])
+            combo["ontop_name"] = ontop_name or "Unknown"
         return render_template("deployments.html", combined_containers=combinations)
 
     @app.route("/logs_manage_deployments/<container_id>")
