@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ file_type }} File - {{ config.name }}</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <style>
+        pre {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            max-height: 80vh;
+            overflow: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h3>{{ file_type }} File for <strong>{{ config.name }}</strong></h3>
+        <pre>{{ file_content | e }}</pre>
+
+        <a href="{{ url_for('manage_blueprints') }}" class="btn btn-outline-primary mt-3">Back</a>
+    </div>
+</body>
+</html>

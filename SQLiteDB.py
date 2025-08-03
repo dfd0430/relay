@@ -49,7 +49,8 @@ class SQLiteDB:
             ("container_id", String, False),  # container ID
             ("db_connection", String, False),
             ("query", String, False),  # SPARQL query
-            ("rows", Integer, False)  # NEW: number of rows returned
+            ("rows", Integer, False),
+            ("obda_name", String,False)# NEW: number of rows returned
         ]
 
         table = Table(
@@ -60,7 +61,7 @@ class SQLiteDB:
         self.metadata.create_all(self.engine)
         return table
 
-    def insert_log(self, ip, container_name, container_id, db_connection, query, timestamp, rows):
+    def insert_log(self, ip, container_name, container_id, db_connection, query, timestamp, rows, obda_name):
         """
         Insert a log entry into the logs table, including row count.
         """
@@ -71,7 +72,8 @@ class SQLiteDB:
             "container_id": container_id,
             "db_connection": db_connection,
             "query": query,
-            "rows": rows  # NEW: number of rows
+            "rows": rows,  # NEW: number of rows
+            "obda_name" : obda_name
 
         }
         table = self.metadata.tables.get("logs")

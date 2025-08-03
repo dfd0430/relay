@@ -37,10 +37,12 @@ def register_obda_routes(app, db):
         except UnicodeDecodeError:
             decoded = "[Binary content — not displayable as text]"
 
-        # Escape special HTML characters
-        escaped = html.escape(decoded)
-
-        return f"<h3>{file_type.upper()} File for {config['name']}</h3><pre>{escaped}</pre>"
+        return render_template(
+            "view_obda_file.html",
+            config=config,
+            file_type=file_type.upper(),
+            file_content=decoded
+        )
 
     @app.route("/create_new_obda", methods=["GET", "POST"])
     def create_new_obda():

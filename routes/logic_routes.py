@@ -82,8 +82,8 @@ def register_logic_routes(app, db):
             # log_ip(client_ip, sparql_query)
             bindings = results.get("results", {}).get("bindings", [])
             number_of_rows_returned = len(bindings)
-
-            log_query(client_ip, container_name,container_id, db_connection, sparql_query, number_of_rows_returned, db)
+            obda_name = db.get_selected_obda(network_container)
+            log_query(client_ip, container_name,container_id, db_connection, sparql_query, number_of_rows_returned, db,obda_name)
 
 
 
