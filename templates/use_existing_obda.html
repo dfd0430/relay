@@ -23,6 +23,7 @@
                         <a href="{{ url_for('view_obda_file', obda_id=obda.id, file_type='obda') }}" class="btn btn-sm btn-outline-secondary">View Mappings</a>
                         <form method="POST" action="{{ url_for('select_obda') }}">
                             <input type="hidden" name="obda_id" value="{{ obda.id }}">
+                            <input type="hidden" name="obda_name" value="{{ obda.name }}">
                             <button type="submit" class="btn btn-sm btn-primary">Select</button>
                         </form>
                     </div>

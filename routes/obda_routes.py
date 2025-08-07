@@ -86,12 +86,15 @@ def register_obda_routes(app, db):
     @app.route("/select_obda", methods=["POST"])
     def select_obda():
         obda_id = request.form.get("obda_id")
+        obda_name = request.form.get("obda_name")
+
         if not obda_id:
-            return redirect(url_for("use_existing_obda"))  # fallback if no selection
+            return redirect(url_for("use_existing_obda"))
 
         session["selected_obda"] = {
             "id": int(obda_id),
             "is_temp": False,
-
+            "name": obda_name
         }
+
         return redirect(url_for("select_train"))

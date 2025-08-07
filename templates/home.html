@@ -1,66 +1,95 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>SPARQL Endpoint Manager</title>
     <!-- Bootstrap CSS CDN -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+    />
     <style>
-        body {
-            background-color: #f8f9fa; /* Light gray background */
-            display: flex;
-            justify-content: center;
-            align-items: flex-start; /* Changed from center to flex-start */
-            /* Removed min-height: 100vh to allow content to naturally flow from the top */
-            padding: 20px; /* Add some padding for smaller screens */
-            box-sizing: border-box; /* Include padding in element's total width and height */
-        }
-        .main-card {
-            background-color: #ffffff;
-            padding: 40px; /* Increased padding */
-            border-radius: 15px; /* Rounded corners */
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1); /* Subtle shadow */
-            width: 100%;
-            max-width: 600px; /* Max width for larger screens */
-            text-align: center;
-            margin-top: 80px; /* Added margin-top to push it from the very top */
-        }
-        h1 {
-            font-size: 2.5rem; /* Slightly larger heading */
-            margin-bottom: 2rem;
-            color: #343a40; /* Darker text for heading */
-        }
-        .btn-custom {
-            display: block; /* Make buttons take full width */
-            width: 100%;
-            padding: 15px 25px; /* Larger padding for better touch targets */
-            font-size: 1.25rem; /* Increased font size for buttons */
-            font-weight: 600; /* Semi-bold text */
-            border-radius: 10px; /* Rounded button corners */
-            margin-bottom: 15px; /* Spacing between buttons */
-            text-decoration: none; /* Remove underline from links */
-            transition: all 0.3s ease; /* Smooth transitions for hover effects */
-        }
-        .btn-custom:hover {
-            transform: translateY(-2px); /* Slight lift effect on hover */
-            box-shadow: 0 6px 12px rgba(0, 123, 255, 0.2); /* Subtle shadow on hover */
-        }
-        /* Remove bottom margin from the last button */
-        .btn-custom:last-child {
-            margin-bottom: 0;
-        }
+      body {
+        background-color: #f8f9fa; /* Light gray background */
+        display: flex;
+        justify-content: center;
+        align-items: flex-start; /* Changed from center to flex-start */
+        /* Removed min-height: 100vh to allow content to naturally flow from the top */
+        padding: 20px; /* Add some padding for smaller screens */
+        box-sizing: border-box; /* Include padding in element's total width and height */
+      }
+      .main-card {
+        background-color: #ffffff;
+        padding: 40px; /* Increased padding */
+        border-radius: 15px; /* Rounded corners */
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+        width: 100%;
+        max-width: 600px; /* Max width for larger screens */
+        text-align: center;
+        margin-top: 80px; /* Added margin-top to push it from the very top */
+      }
+      h1 {
+        font-size: 2.5rem; /* Slightly larger heading */
+        margin-bottom: 2rem;
+        color: #343a40; /* Darker text for heading */
+      }
+      .btn-custom {
+        display: block; /* Make buttons take full width */
+        width: 100%;
+        padding: 15px 25px; /* Larger padding for better touch targets */
+        font-size: 1.25rem; /* Increased font size for buttons */
+        font-weight: 600; /* Semi-bold text */
+        border-radius: 10px; /* Rounded button corners */
+        margin-bottom: 15px; /* Spacing between buttons */
+        text-decoration: none; /* Remove underline from links */
+        transition: all 0.3s ease; /* Smooth transitions for hover effects */
+      }
+      .btn-custom:hover {
+        transform: translateY(-2px); /* Slight lift effect on hover */
+        box-shadow: 0 6px 12px rgba(0, 123, 255, 0.2); /* Subtle shadow on hover */
+      }
+      /* Remove bottom margin from the last button */
+      .btn-custom:last-child {
+        margin-bottom: 0;
+      }
+
+      /* Green button styling */
+      .btn-green {
+        color: #28a745; /* Bootstrap green */
+        border-color: #28a745;
+      }
+      .btn-green:hover {
+        color: #fff;
+        background-color: #28a745;
+        border-color: #28a745;
+        box-shadow: 0 6px 12px rgba(40, 167, 69, 0.2);
+      }
     </style>
 </head>
 <body>
-    <div class="main-card">
-        <h1>SPARQL Endpoint Manager</h1>
+  <div class="main-card">
+    <h1>SPARQL Endpoint Manager</h1>
 
-        <a href="{{ url_for('create_db') }}" class="btn btn-outline-primary btn-custom">Create New Endpoint</a>
-        <a href="{{ url_for('list_deployments') }}" class="btn btn-outline-primary btn-custom">Deployed Containers</a>
-        <a href="{{ url_for('manage_db_connections') }}" class="btn btn-outline-primary btn-custom">Manage Database Connections</a>
-        <a href="{{ url_for('manage_blueprints') }}" class="btn btn-outline-primary btn-custom">Manage Blueprints</a>
-        <a href="{{ url_for('all_logs_overview') }}" class="btn btn-outline-primary btn-custom">View Container Logs</a>
-    </div>
+    <a
+      href="{{ url_for('create_db') }}"
+      class="btn btn-outline-primary btn-custom btn-green"
+      >Create & Connect Endpoint</a
+    >
+    <a href="{{ url_for('list_deployments') }}" class="btn btn-outline-primary btn-custom"
+      >Deployed Containers</a
+    >
+    <a
+      href="{{ url_for('manage_db_connections') }}"
+      class="btn btn-outline-primary btn-custom"
+      >Manage Database Connections</a
+    >
+    <a href="{{ url_for('manage_blueprints') }}" class="btn btn-outline-primary btn-custom"
+      >Manage Blueprints</a
+    >
+    <a href="{{ url_for('all_logs_overview') }}" class="btn btn-outline-primary btn-custom"
+      >View Container Logs</a
+    >
+  </div>
 </body>
 </html>

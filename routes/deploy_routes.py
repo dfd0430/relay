@@ -60,10 +60,11 @@ def register_deploy_routes(app, db):
         if db_is_temp:
             db_conn = db.get_temp_db_connection_by_id(db_id)
             db_name = db_conn["name"] if db_conn else None
+            session["latest_conn"] = db_conn["name"] if db_conn else None
         else:
             db_conn = db.get_db_connection_by_id(db_id)
             db_name = db_conn["name"] if db_conn else None
-
+            session["latest_conn"] = db_conn["name"] if db_conn else None
         # 5. Validation
         if not obda_cfg or not db_conn:
             return redirect(url_for("select_train"))
@@ -112,10 +113,11 @@ def register_deploy_routes(app, db):
     def train_status():
         train_info = session.get("latest_train")
         ontop_name = session.get("latest_network_name")
+        db_name = session.get("latest_conn")
         obda_name = db.get_selected_obda(ontop_name)
         if not train_info:
             return "No recent deployment found.", 404
-        return render_template("train_status.html", train=train_info, ontop_name=ontop_name, obda_name=obda_name)
+        return render_template("train_status.html", train=train_info, ontop_name=ontop_name, obda_name=obda_name, db_name=db_name)
 
     @app.route("/logs_deployment/<container_id>")
     def view_logs_deployment(container_id):
@@ -157,7 +159,9 @@ def register_deploy_routes(app, db):
                             "message": "✅ The VKG and Train containers are now connected. You can start the Train when ready."})
         elif error_keyword in logs:
             return jsonify(
-                {"status": "error", "message": "❌ An error occurred starting up the Ontop container"})
+                {"status": "error", "message": ("❌ An error occurred starting up the VKG. "
+            " Please check your Database Connection and OBDA configuration files. "
+            " For more details, refer to the logs of the VKG container.")})
         else:
             return jsonify({"status": "connecting", "message": "⏳ Connecting VKG container..."})
 
@@ -171,7 +175,8 @@ def register_deploy_routes(app, db):
         if error_keyword in logs:
             return jsonify(
                 {"status": "error",
-                 "message": f"❌ An Exception occurred in Ontop container '{ontop_name}'."})
+                 "message": ("❌ An Exception occurred in the VKG container during query execution."
+                 " For more details, refer to the logs of the VKG container.")})
         else:
             # IMPORTANT: Return a non-error status when no exception is found.
             # The message here doesn't matter much since the JS won't display it.
